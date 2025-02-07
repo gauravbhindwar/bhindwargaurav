@@ -1,0 +1,32 @@
+{
+  "name": "bhindwargaurav",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@fontsource/poppins": "^5.1.1",
+    "@fontsource/space-grotesk": "^5.1.1",
+    "@geist-ui/react": "^2.2.5",
+    "daisyui": "^4.4.19",
+    "framer-motion": "^12.4.1",
+    "geist": "^1.3.1",
+    "next": "15.1.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^5.4.0",
+    "react-typed": "^2.0.12",
+    "simple-icons": "^14.5.0",
+    "tailwind-merge": "^3.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^9",
+    "eslint-config-next": "15.1.6",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1"
+  }
+}

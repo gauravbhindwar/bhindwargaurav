@@ -1,0 +1,73 @@
+{
+  "categories": [
+    {
+      "name": "Languages",
+      "skills": [
+        { "name": "HTML", "icon": "html5", "color": "#E34F26" },
+        { "name": "CSS", "icon": "css3", "color": "#1572B6" },
+        { "name": "JavaScript", "icon": "javascript", "color": "#F7DF1E" },
+        { "name": "TypeScript", "icon": "typescript", "color": "#3178C6" },
+        { "name": "C++", "icon": "cplusplus", "color": "#00599C" },
+        { "name": "C", "icon": "c", "color": "#00599C" },
+        { "name": "Zod", "icon": "zod", "color": "#3068B7" }
+      ]
+    },
+    {
+      "name": "Frontend",
+      "skills": [
+        { "name": "React.js", "icon": "react", "color": "#61DAFB" },
+        { "name": "Next.js", "icon": "nextdotjs", "color": "#000000" },
+        { "name": "React Server Components", "icon": "react", "color": "#61DAFB" },
+        { "name": "Tailwind CSS", "icon": "tailwindcss", "color": "#06B6D4" },
+        { "name": "Material UI", "icon": "materialui", "color": "#007FFF" },
+        { "name": "Shadcn UI", "icon": "shadcn", "color": "#000000" },
+        { "name": "Framer Motion", "icon": "framer", "color": "#0055FF" }
+      ]
+    },
+    {
+      "name": "Backend",
+      "skills": [
+        { "name": "Next.js API Routes", "icon": "nextdotjs", "color": "#000000" },
+        { "name": "REST API", "icon": "api", "color": "#009688" },
+        { "name": "JWT Auth", "icon": "jwt", "color": "#000000" },
+        { "name": "MongoDB", "icon": "mongodb", "color": "#47A248" },
+        { "name": "PostgreSQL", "icon": "postgresql", "color": "#4169E1" },
+        { "name": "Prisma", "icon": "prisma", "color": "#2D3748" },
+        { "name": "Nodemailer", "icon": "nodedotjs", "color": "#339933" }
+      ]
+    },
+    {
+      "name": "Tools & Platforms",
+      "skills": [
+        { "name": "Git", "icon": "git", "color": "#F05032" },
+        { "name": "GitHub", "icon": "github", "color": "#181717" },
+        { "name": "VS Code", "icon": "visualstudiocode", "color": "#007ACC" },
+        { "name": "Postman", "icon": "postman", "color": "#FF6C37" },
+        { "name": "Docker", "icon": "docker", "color": "#2496ED" },
+        { "name": "Vercel", "icon": "vercel", "color": "#000000" }
+      ]
+    }
+  ],
+  "courses": {
+    "current": [
+     "Data Science and Machine Learning",
+     "Software Engineering",
+     "Digital Image Processing",
+     "Information System Security"
+    ],
+    "completed": [
+      "Web Development",
+      "Operating Systems",
+      "Computer Networks",
+      "Object-Oriented Programming",
+      "Data Structures and Algorithms",
+      "Database Management Systems",
+      "Automata Theory and Computability",
+      "Design and Analysis of Algorithms",
+      "Computer Organization and Architecture"
+
+
+
+    ]
+  }
+}

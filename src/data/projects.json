@@ -1,0 +1,177 @@
+{
+  "projects": [
+    {
+      "id": "MentorLink",
+      "title": "MentorLink",
+      "description": "MentorLink is a comprehensive web-based platform designed to streamline the mentorship process in educational institutions. It facilitates automated mentor-mentee matching, meeting management, progress tracking, and provides powerful administrative tools for program coordinators.",
+      "image": "/projects/mentorlink.png",
+      "tech": [
+        "Next.js 14",
+        "React Server Components",
+        "NextAuth.js",
+        "Zod",
+        "JavaScript",
+        "Node.js",
+        "MongoDB",
+        "Mongoose",
+        "Tailwind CSS",
+        "TypeScript",
+        "JWT Auth",
+        "REST API",
+        "Server-side Rendering",
+        "Role-based Access"
+      ],
+      "github": "https://github.com/gauravbhindwar/mentorlink",
+      "live": "https://mentorlink-nu.vercel.app/",
+      "preview": true,
+      "features": [
+        "Role-based authentication for admins, mentors, and mentees",
+        "Automated mentor-mentee matching system",
+        "Comprehensive meeting scheduling and management",
+        "Progress tracking and reporting capabilities",
+        "Batch processing for mentor assignments",
+        "Real-time analytics and insights",
+        "Session management and attendance tracking",
+        "Secure data handling with JWT authentication"
+      ]
+    },
+    {
+      "id": "mailman",
+      "title": "MailMan - Email Management System",
+      "description": "A comprehensive email management system built with Next.js 14, featuring secure authentication, email verification, and advanced user management. The application demonstrates modern web development practices with server-side rendering, responsive design, and robust security features.",
+      "image": "/projects/mailman.png",
+      "tech": [
+        "Next.js 14",
+        "React Server Components",
+        "MongoDB",
+        "Mongoose",
+        "NextAuth.js",
+        "Tailwind CSS",
+        "JWT Auth",
+        "Node.js",
+        "TypeScript",
+        "Email Service Integration",
+        "Server-side Rendering"
+      ],
+      "github": "https://github.com/gauravbhindwar/aidoc",
+      "live": "https://mailman-kappa.vercel.app/",
+      "preview": true,
+      "features": [
+        "Secure credential-based authentication with email verification",
+        "Dark/Light theme support with smooth transitions",
+        "Protected routes and JWT-based security",
+        "User profile management with customizable settings",
+        "Email service integration with customizable templates",
+        "Username availability checker with suggestions",
+        "Responsive design with modern UI/UX principles",
+        "Server-side rendering for optimal performance",
+        "Environment-based configuration management",
+        "Custom error handling and logging system"
+      ]
+    },
+    {
+      "id": "faculty-selector-2",
+      "title": "Faculty Subject Selector (FSS)",
+      "description": "A comprehensive web application for managing faculty subject selection in educational institutions. Features include secure authentication, role-based access control, automated course allocation, and real-time tracking of form submissions.",
+      "image": "/projects/faculty-selector.png",
+      "tech": [
+        "Next.js 14",
+        "React Server Components",
+        "NextAuth.js",
+        "Zod",
+        "Prisma",
+        "JavaScript",
+        "TypeScript",
+        "MongoDB",
+        "Tailwind CSS",
+        "JWT Auth",
+        "REST API",
+        "Framer Motion",
+        "html2pdf.js"
+      ],
+      "github": "https://github.com/gauravbhindwar/faculty-subject-selector",
+      "live": "https://fss-vert.vercel.app/",
+      "preview": true,
+      "features": [
+        "Role-based authentication for Admin and Faculty users",
+        "Comprehensive course catalog management system",
+        "Real-time form submission tracking and status updates",
+        "Dynamic course allocation with load optimization",
+        "Automated PDF generation for form submissions",
+        "Semester-wise course management and configuration",
+        "Intuitive subject selection interface for faculty",
+        "Protected API routes with middleware authentication"
+      ]
+    },
+    {
+      "id": "event-horizon",
+      "title": "EventHorizon",
+      "description": "A sophisticated event management platform built with Next.js 14 and Material-UI. Features comprehensive event handling, calendar visualization, and real-time notifications. Implements secure user authentication, database management with Prisma, and containerized deployment with Docker.",
+      "image": "/projects/event-horizon.png",
+      "tech": [
+        "Next.js 14",
+        "TypeScript",
+        "Material-UI",
+        "Tailwind CSS",
+        "PostgreSQL",
+        "Prisma ORM",
+        "NextAuth.js",
+        "Docker",
+        "React Big Calendar",
+        "Node.js",
+        "REST API"
+      ],
+      "github": "https://github.com/gauravbhindwar/eventhorizon",
+      "live": "https://eventhorizon-red.vercel.app/",
+      "preview": true,
+      "features": [
+        "Comprehensive event CRUD operations with calendar visualization",
+        "Secure authentication and user profile management",
+        "Advanced notification system with email integration",
+        "Protected API routes with rate limiting",
+        "Automated database migrations with Prisma",
+        "Docker containerization support",
+        "Server-side rendering and static generation",
+        "Type-safe database queries and API endpoints",
+        "Responsive calendar interface with filtering capabilities",
+        "Environment-based configuration management"
+      ]
+    },
+    {
+      "id": "aidoc-1",
+      "title": "AIDOC: Medical Knowledge Base",
+      "description": "A medical RAG knowledge base using Pinecone, Next.js, and LangChain. Features real-time data updates and efficient document processing with Transformers.js.",
+      "image": "/projects/aidoc.png",
+      "tech": ["Next.js", "LangChain", "Pinecone", "Tailwind CSS", "Shadcn UI"],
+      "github": "https://github.com/gauravbhindwar/aidoc",
+      "live": "#",
+      "preview": true,
+      "features": [
+        "Real-time data updates",
+        "Efficient document processing",
+        "Integration with Transformers.js",
+        "Advanced search capabilities",
+        "User-friendly interface",
+        "Secure data storage"
+      ]
+    },
+    {
+      "id": "cropin-2",
+      "title": "CROPIN: A Web App",
+      "description": "A full-stack Next.js app connecting farmers with buyers. Features secure authentication with NextAuth.js, MongoDB integration, and comprehensive schema validation using ZOD.",
+      "image": "/projects/cropin.png",
+      "tech": ["Next.js", "MongoDB", "NextAuth.js", "ZOD", "Context API"],
+      "github": "https://github.com/gauravbhindwar/cropin",
+      "live": "#",
+      "preview": true,
+      "features": [
+        "Secure authentication with NextAuth.js",
+        "MongoDB integration",
+        "Comprehensive schema validation using ZOD",
+        "User-friendly interface",
+        "Real-time updates",
+        "Efficient data management"
+      ]
+    }
+  ]
+}
