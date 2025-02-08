@@ -74,7 +74,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 👋 Contact
 
-- Website - [gauravbhindwar]([https://your-website.com](https://gauravbhindwar.vercel.app/))
-- GitHub - [@bhindwargaurav]([https://github.com/yourusername](https://github.com/gauravbhindwar))
+- Website - [gauravbhindwar]([https://gauravbhindwar.vercel.app/])
+- GitHub - [@bhindwargaurav]([https://github.com/gauravbhindwar])
 - LinkedIn - [Gaurav Kumar](https://www.linkedin.com/in/gaurav-kumar-11615220a/)
 # bhindwargaurav
