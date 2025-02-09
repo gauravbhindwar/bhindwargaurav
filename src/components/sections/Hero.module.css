@@ -5,6 +5,7 @@
 .profileImageContainer {
   position: relative;
   transform-style: preserve-3d;
+  margin: 2rem auto; /* Added margin for better spacing on mobile */
 }
 
 .glowEffect {
@@ -17,17 +18,24 @@
   filter: blur(15px);
   opacity: 0.15;
   transition: opacity 0.3s ease;
+  border-radius: 50%; /* Ensure glow follows circular shape */
 }
 
 .profileImageContainer:hover .glowEffect {
   opacity: 0.25;
 }
 
+/* Updated floating animation for smoother movement */
 .floatingAnimation {
   animation: floating 6s ease-in-out infinite;
+  transform-origin: center center;
 }
 
 @keyframes floating {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  0%, 100% { 
+    transform: translateY(0px) scale(1); 
+  }
+  50% { 
+    transform: translateY(-20px) scale(1.02); 
+  }
 }

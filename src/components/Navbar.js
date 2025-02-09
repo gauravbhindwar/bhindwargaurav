@@ -107,25 +107,53 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Updated handleNavClick function
   const handleNavClick = (e, href) => {
-    e.preventDefault()
-    const element = document.querySelector(href)
-    if (element) {
-      const yOffset = -60
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
-      
-      // Update current section
-      const sectionId = href.replace('#', '')
-      setCurrentSection(sectionId)
-      
-      window.scrollTo({
-        top: y,
-        behavior: 'smooth'
-      })
-      
-      setIsOpen(false)
-    }
-  }
+    e.preventDefault();
+    
+    // Close mobile menu first
+    setIsOpen(false);
+    
+    // Add small delay to allow menu animation to complete
+    setTimeout(() => {
+      const element = document.querySelector(href);
+      if (element) {
+        const yOffset = -80; // Increased offset to account for navbar height
+        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        
+        // Update current section
+        const sectionId = href.replace('#', '');
+        setCurrentSection(sectionId);
+        
+        window.scrollTo({
+          top: y,
+          behavior: 'smooth'
+        });
+      }
+    }, 300); // Increased delay for smoother transition
+  };
+
+  // Add click outside handler to close mobile menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isOpen && !event.target.closest('.mobile-menu') && !event.target.closest('.menu-button')) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  // Close menu on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isOpen) setIsOpen(false);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isOpen]);
 
   // Add useEffect to sync currentSection with activeSection
   useEffect(() => {
@@ -285,7 +313,7 @@ export default function Navbar() {
 
             {/* Mobile/Tablet Menu Button - Adjust positioning */}
             <motion.button 
-              className="lg:hidden p-2 rounded-xl hover:bg-base-200/50 ml-auto"
+              className="lg:hidden p-2 rounded-xl hover:bg-base-200/50 ml-auto menu-button"
               onClick={() => setIsOpen(!isOpen)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -309,11 +337,16 @@ export default function Navbar() {
         <AnimatePresence>
           {isOpen && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="lg:hidden fixed top-[60px] right-0 w-full md:w-[300px] bg-base-100/95 backdrop-blur-md border-b border-l border-base-200/50 shadow-lg z-40"
+              className="lg:hidden fixed inset-x-0 top-[60px] bg-base-100/95 backdrop-blur-md border-b border-base-200/50 shadow-lg mobile-menu"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              style={{ 
+                maxHeight: 'calc(100vh - 60px)',
+                overflowY: 'auto',
+                zIndex: 40
+              }}
             >
               <div className="p-4">
                 <ul className="space-y-3">

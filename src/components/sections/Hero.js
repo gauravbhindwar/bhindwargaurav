@@ -40,26 +40,26 @@ export default function Hero() {
         />
       </div>
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative">
         <div className="grid md:grid-cols-12 gap-6 md:gap-8 lg:gap-12 items-center max-w-7xl mx-auto">
-          {/* Profile Image Section */}
+          {/* Profile Image Section - Updated for better mobile display */}
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="md:col-span-5 lg:col-span-5 order-1 lg:order-2 -mt-12 sm:-mt-8 md:mt-0"
+            className="md:col-span-5 lg:col-span-5 order-1 lg:order-2 flex justify-center" // Added flex and justify-center
           >
             <motion.div
-              className={`relative w-36 h-36 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-80 lg:h-80 mx-auto ${styles.profileImageContainer} ${styles.floatingAnimation}`}
+              className={`relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 lg:w-80 lg:h-80 ${styles.profileImageContainer} ${styles.floatingAnimation}`}
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              {/* Glow Effect */}
-              <div className={`${styles.glowEffect} hidden sm:block`} />
+              {/* Glow Effect - Now visible on all screens */}
+              <div className={`${styles.glowEffect}`} />
               
-              {/* Background Animation */}
+              {/* Background Animation - Adjusted for mobile */}
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-red-600 rounded-full blur-xl sm:blur-2xl opacity-40 sm:opacity-20"
+                className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-red-600 rounded-full blur-xl opacity-40"
                 animate={{ 
                   scale: [1, 1.2, 1],
                   opacity: [0.2, 0.3, 0.2],
@@ -88,20 +88,21 @@ export default function Hero() {
                 />
               </motion.div>
 
-              {/* Decorative Elements */}
-              <motion.div                className="absolute -bottom-4 -left-4 w-16 sm:w-24 h-16 sm:h-24 bg-dots-pattern opacity-20 hidden sm:block"
+              {/* Decorative Elements - Now visible on all screens */}
+              <motion.div
+                className="absolute -bottom-4 -left-4 w-16 h-16 sm:w-20 sm:h-20 bg-dots-pattern opacity-20"
                 animate={{ rotate: [0, 360] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               />
               <motion.div
-                className="absolute -top-4 -right-4 w-16 sm:w-24 h-16 sm:h-24 bg-dots-pattern opacity-20 hidden sm:block"
+                className="absolute -top-4 -right-4 w-16 h-16 sm:w-20 sm:h-20 bg-dots-pattern opacity-20"
                 animate={{ rotate: [360, 0] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               />
             </motion.div>
           </motion.div>
 
-          {/* Content Section */}
+          {/* Content Section - Updated text alignment for mobile */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -139,7 +140,7 @@ export default function Hero() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="flex flex-col sm:flex-row items-center md:items-start gap-2 sm:gap-4 text-lg sm:text-xl md:text-2xl text-primary font-display tracking-wide"
+                className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 sm:gap-4 text-lg sm:text-xl md:text-2xl text-primary font-display tracking-wide"
               >
                 <span className="bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text">Hello</span>
                 <span className="font-semibold">World</span>
@@ -147,15 +148,17 @@ export default function Hero() {
               </motion.div>
 
               <motion.div className="space-y-2">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-display tracking-tight">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold font-display tracking-tight text-center md:text-left"> {/* Added text-center md:text-left */}
                   <span className="block">I&apos;m</span>
-                  <span className="block bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text">
-                    <AnimatedLetters text="Gaurav Kumar" />
-                  </span>
+                  <div className="flex justify-center md:justify-start"> {/* Added flex container for centering */}
+                    <span className="block bg-gradient-to-r from-primary to-secondary text-transparent bg-clip-text">
+                      <AnimatedLetters text="Gaurav Kumar" />
+                    </span>
+                  </div>
                 </h1>
                 
                 <motion.div 
-                  className="flex flex-col sm:flex-row items-center md:items-start justify-center md:justify-start gap-2 sm:gap-4 text-lg sm:text-xl md:text-2xl text-base-content/80"
+                  className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 sm:gap-4 text-lg sm:text-xl md:text-2xl text-base-content/80"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6 }}

@@ -92,36 +92,28 @@ export default function Projects() {
   const displayedProjects = showAll ? projectsData.projects : projectsData.projects.slice(0, 3)
 
   return (
-    <section id="projects" className="py-20 bg-base-100">
-      <div className="container mx-auto px-4">
-        <motion.div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-16">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              className="space-y-2"
-            >
-              <h2 className="text-5xl font-bold">
-                <span className="bg-gradient-to-r from-primary via-accent to-secondary text-transparent bg-clip-text">
-                  Featured Projects
-                </span>
-              </h2>
-              <p className="text-base-content/70 max-w-lg">
-                A showcase of my best work, featuring web applications and creative solutions.
-              </p>
-            </motion.div>
+    <section id="projects" className="py-24 relative">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-base-200/50 to-base-100/50 backdrop-blur-sm"></div>
+      
+      <div className="container mx-auto px-4 relative">
+        <motion.div className="max-w-6xl mx-auto">
+          {/* Updated Header */}
+          <div className="flex flex-col items-center justify-center gap-6 mb-16">
+            <h2 className="text-5xl font-bold text-center">
+              <span className="warm-gradient">Featured Projects</span>
+            </h2>
             
             <Link 
               href="/projects" 
-              className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-base-200 hover:bg-base-300 transition-all duration-300"
+              className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-base-200/50 hover:bg-base-300/50 transition-all duration-300"
             >
               View All Projects
               <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
-          {/* Updated Projects Grid with unique id-based keys */}
+          {/* Projects Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {displayedProjects.map((project, index) => (
               <ProjectCard 
@@ -236,7 +228,7 @@ function ProjectCard({ project, index, setHovered, isHovered }) {
           </div>
 
           <motion.div 
-            className="flex flex-wrap gap-2"
+            className="flex flex-wrap gap-2 max-h-[80px] overflow-y-auto"
             animate={{ height: showAllTech ? 'auto' : '2rem' }}
           >
             {(showAllTech ? project.tech : project.tech.slice(0, 3)).map((tech, techIndex) => (
@@ -244,14 +236,14 @@ function ProjectCard({ project, index, setHovered, isHovered }) {
                 key={`${project.id}-${tech}-${techIndex}`}
                 initial={showAllTech ? { opacity: 0, y: 10 } : false}
                 animate={{ opacity: 1, y: 0 }}
-                className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs"
+                className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs whitespace-nowrap"
               >
                 {tech}
               </motion.span>
             ))}
             {!showAllTech && project.tech.length > 3 && (
               <motion.span
-                className="px-2 py-1 bg-base-300 rounded-full text-xs cursor-pointer hover:bg-base-300/80"
+                className="px-2 py-1 bg-base-300 rounded-full text-xs cursor-pointer hover:bg-base-300/80 whitespace-nowrap"
                 onClick={() => setShowAllTech(true)}
               >
                 +{project.tech.length - 3} more
@@ -260,18 +252,11 @@ function ProjectCard({ project, index, setHovered, isHovered }) {
           </motion.div>
         </div>
 
-        {/* Action Buttons */}
-        <motion.div
-          className="flex gap-4 pt-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ 
-            opacity: isHovered ? 1 : 0,
-            y: isHovered ? 0 : 20
-          }}
-        >
+        {/* Action Buttons - Always visible on mobile */}
+        <div className="flex flex-wrap gap-3">
           <button 
             onClick={() => setShowFeatures(true)}
-            className="flex items-center gap-2 text-sm hover:text-primary transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-base-300/50 hover:bg-base-300 transition-colors text-sm"
           >
             <FaListUl /> Features
           </button>
@@ -279,7 +264,7 @@ function ProjectCard({ project, index, setHovered, isHovered }) {
             href={project.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm hover:text-primary transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-base-300/50 hover:bg-base-300 transition-colors text-sm"
           >
             <FaGithub /> Code
           </a>
@@ -287,11 +272,11 @@ function ProjectCard({ project, index, setHovered, isHovered }) {
             href={project.live}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm hover:text-primary transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors text-sm"
           >
-            <FaExternalLinkAlt /> Live Demo
+            <FaExternalLinkAlt /> Preview
           </a>
-        </motion.div>
+        </div>
 
       </div>
 
