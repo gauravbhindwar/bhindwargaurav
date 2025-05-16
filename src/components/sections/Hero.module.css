@@ -1,27 +1,3 @@
-/* ============= App Container Viewport Adjustments ============= */
-:root {
-  /* Add viewport control variables */
-  --section-padding-bottom: 4rem;
-  --app-min-height: 100vh;
-  --app-content-max-width: 1280px;
-  --app-gutter: 1rem;
-  
-  /* Existing variables */
-  --glow-opacity: 0.15;
-  --glow-opacity-hover: 0.25;
-  --terminal-bg: hsl(var(--b1)/0.8);
-  --terminal-border: hsl(var(--p)/0.3);
-  --terminal-header-bg: hsl(var(--b2));
-  --code-color-comment: hsl(var(--s)/0.7);
-  --code-color-keyword: hsl(var(--p));
-  --code-color-string: hsl(var(--su)/0.9);
-  --code-color-variable: hsl(var(--er)/0.9);
-  --code-color-property: hsl(var(--s));
-  --code-color-array: hsl(var(--ac));
-  --animation-duration-slow: 6s;
-  --animation-duration-normal: 4s;
-  --animation-duration-fast: 2s;
-}
 
 /* Font styles for calligraphy */
 .font-calligraphy {

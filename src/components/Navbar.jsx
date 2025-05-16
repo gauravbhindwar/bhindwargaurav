@@ -1,51 +1,89 @@
 'use client'
 
 import { useTheme } from './theme-provider'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useEffect } from 'react'
-import { FaSun, FaMoon, FaMusic, FaFileDownload } from 'react-icons/fa'
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { FaSun, FaMoon, FaMusic, FaFileDownload, FaHome } from 'react-icons/fa'
 import { FiMenu, FiX } from 'react-icons/fi'
 import useFetch from '@/hooks/useFetch'
+
+// Throttle function for performance optimization
+const throttle = (func, limit) => {
+  let lastFunc;
+  let lastRan;
+  return function() {
+    const context = this;
+    const args = arguments;
+    if (!lastRan) {
+      func.apply(context, args);
+      lastRan = Date.now();
+    } else {
+      clearTimeout(lastFunc);
+      lastFunc = setTimeout(function() {
+        if ((Date.now() - lastRan) >= limit) {
+          func.apply(context, args);
+          lastRan = Date.now();
+        }
+      }, limit - (Date.now() - lastRan));
+    }
+  }
+}
 
 // Custom hook for section detection
 const useActiveSection = () => {
   const [activeSection, setActiveSection] = useState('')
-
+  const sectionsRef = useRef([]);
+  
   useEffect(() => {
-    const updateActiveSection = () => {
-      const sections = document.querySelectorAll('section[id]')
-      const scrollPosition = window.scrollY + window.innerHeight / 2 // Use middle of viewport
-
-      sections.forEach((section) => {
-        const sectionTop = section.offsetTop
-        const sectionBottom = sectionTop + section.offsetHeight
+    // Cache all sections to avoid DOM queries on every scroll
+    sectionsRef.current = Array.from(document.querySelectorAll('section[id]'));
+    
+    const updateActiveSection = throttle(() => {
+      const scrollPosition = window.scrollY + window.innerHeight / 2;
+      
+      // Use cached sections and find active one
+      let currentSection = '';
+      
+      for (const section of sectionsRef.current) {
+        const sectionTop = section.offsetTop;
+        const sectionBottom = sectionTop + section.offsetHeight;
         
-        // Check if section is in view with more precise boundaries
         if (scrollPosition >= sectionTop && scrollPosition <= sectionBottom) {
           // Special handling for last section (contact)
           if (section.id === 'contact' && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100) {
-            setActiveSection('contact')
+            currentSection = 'contact';
           } else {
-            setActiveSection(section.id)
+            currentSection = section.id;
           }
+          break; // Stop the loop when we find the active section
         }
-      })
-    }
-
-    // Call on mount and scroll
-    updateActiveSection()
-    window.addEventListener('scroll', updateActiveSection, { passive: true })
+      }
+      
+      if (currentSection !== activeSection) {
+        setActiveSection(currentSection);
+      }
+    }, 100); // 100ms throttle
     
-    // Also update on window resize
-    window.addEventListener('resize', updateActiveSection, { passive: true })
+    // Call on mount and scroll
+    updateActiveSection();
+    window.addEventListener('scroll', updateActiveSection, { passive: true });
+    
+    // Only update on significant window resize
+    const resizeHandler = throttle(() => {
+      // Recalculate section positions on resize
+      sectionsRef.current = Array.from(document.querySelectorAll('section[id]'));
+      updateActiveSection();
+    }, 250); // 250ms throttle for resize
+    
+    window.addEventListener('resize', resizeHandler, { passive: true });
     
     return () => {
-      window.removeEventListener('scroll', updateActiveSection)
-      window.removeEventListener('resize', updateActiveSection)
-    }
-  }, [])
+      window.removeEventListener('scroll', updateActiveSection);
+      window.removeEventListener('resize', resizeHandler);
+    };
+  }, [activeSection]); // Dependency on activeSection
 
-  return activeSection
+  return activeSection;
 }
 
 const AnimatedNotes = () => (
@@ -78,16 +116,17 @@ export default function Navbar() {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [scrollDirection, setScrollDirection] = useState('none') // Track scroll direction
   const [currentSection, setCurrentSection] = useState('')
+  const [lastScrollY, setLastScrollY] = useState(0) // Store last scroll position
   const { data: contactData, loading, error } = useFetch('/api/contact')
-
   const navItems = [
+    { href: '#home', label: 'Home', id: 'home', icon: FaHome },
     { href: '#projects', label: 'Projects', id: 'projects' },
     { href: '#skills', label: 'Skills', id: 'skills' },
     { href: '#certifications', label: 'Certifications', id: 'certifications' },
     { href: '#contact', label: 'Contact', id: 'contact' }
   ]
-
   const downloadResume = () => {
     // Use the resume link from contact data with error handling
     if (contactData && contactData.resumeLink) {
@@ -97,41 +136,59 @@ export default function Navbar() {
       console.warn('Resume link not available')
     }
   }
-
+  
   useEffect(() => {
-    const handleScroll = () => {
-      const totalScroll = document.documentElement.scrollHeight - window.innerHeight
-      const currentProgress = (window.scrollY / totalScroll) * 100
-      setScrollProgress(currentProgress)
-      setIsScrolled(window.scrollY > 0)
-    }
+    const handleScroll = throttle(() => {
+      const currentScrollY = window.scrollY;
+      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const currentProgress = (currentScrollY / totalScroll) * 100;
+      
+      // Determine scroll direction with a small threshold to avoid flickering
+      if (currentScrollY > lastScrollY + 5) {
+        if (scrollDirection !== 'down') setScrollDirection('down');
+      } else if (currentScrollY < lastScrollY - 5) {
+        if (scrollDirection !== 'up') setScrollDirection('up');
+      }
+      
+      // Update last scroll position
+      setLastScrollY(currentScrollY);
+      
+      // Only update state if there's a significant change
+      setScrollProgress(prev => {
+        const diff = Math.abs(prev - currentProgress);
+        return diff > 1 ? currentProgress : prev;
+      });
+      
+      // Use a threshold to avoid constant re-renders
+      setIsScrolled(currentScrollY > 10);
+    }, 50); // 50ms throttle for smooth progress updates
 
-    window.addEventListener('scroll', handleScroll)
-    handleScroll()
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  const handleNavClick = (e, href) => {
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY, scrollDirection]);
+  const handleNavClick = useCallback((e, href) => {
     e.preventDefault();
-    
     setIsOpen(false);
     
-    setTimeout(() => {
-      const element = document.querySelector(href);
-      if (element) {
-        const yOffset = -80;
-        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-        
-        const sectionId = href.replace('#', '');
-        setCurrentSection(sectionId);
-        
+    // No need for setTimeout, let's do it directly
+    const element = document.querySelector(href);
+    if (element) {
+      const yOffset = -80;
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      
+      const sectionId = href.replace('#', '');
+      setCurrentSection(sectionId);
+      
+      // Use requestAnimationFrame for smoother scrolling
+      requestAnimationFrame(() => {
         window.scrollTo({
           top: y,
           behavior: 'smooth'
         });
-      }
-    }, 300);
-  };
+      });
+    }
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -160,34 +217,58 @@ export default function Navbar() {
   }, [activeSection])
 
   return (
-    <>
-      <motion.div className="fixed top-0 left-0 right-0 h-[2px] z-50 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent">
-        <motion.div
-          className="h-full bg-gradient-to-r from-pink-600 via-purple-600 to-red-600"
-          style={{ width: `${scrollProgress}%`, filter: 'blur(1px)' }}
-          transition={{ type: 'spring', stiffness: 100 }}
-        />
-      </motion.div>
-
-      <motion.nav 
+    <>      <AnimatePresence>
+        {scrollDirection === 'down' && (
+          <motion.div 
+            className="fixed top-0 left-0 right-0 h-[2px] z-50 bg-gradient-to-r from-transparent via-purple-500/10 to-transparent pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div
+              className="h-full bg-gradient-to-r from-pink-600 via-purple-600 to-red-600"
+              style={{ 
+                width: `${scrollProgress}%`, 
+                filter: 'blur(1px)' 
+              }}
+              // Use initial and animate for better performance
+              initial={{ width: "0%" }}
+              animate={{ width: `${scrollProgress}%` }}
+              transition={{ 
+                duration: 0.1, // Quick but not instant
+                ease: "linear"
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence><motion.nav 
         className={`fixed top-0 left-0 right-0 z-40 ${
-          isScrolled ? 'py-2 bg-base-100/80 backdrop-blur-md shadow-lg shadow-purple-900/10 border-b border-purple-900/20' : 'py-4 bg-transparent'
-        } transition-all duration-200 ease-in-out`}
+          isScrolled ? 'py-2 backdrop-blur-md shadow-lg shadow-purple-900/5 border-b border-purple-900/10' : 'py-4'
+        } transition-transform will-change-transform`}
+        style={{
+          backgroundColor: isScrolled ? 'var(--b1-a80)' : 'transparent',
+          transform: 'translateY(0)'
+        }}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+        transition={{ 
+          type: 'tween', 
+          duration: 0.3,
+          ease: "easeOut"
+        }}
       >
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between relative">
-            <motion.a 
+          <div className="flex items-center justify-between relative">            <motion.a 
               href="#home"
-              className="text-xl md:text-lg lg:text-xl font-bold relative group shrink-0"
+              className="text-xl md:text-lg lg:text-xl font-bold relative group shrink-0 flex items-center gap-2"
               whileHover={{ scale: 1.05 }}
               onClick={(e) => handleNavClick(e, '#home')}
             >
-              {/* <span className="bg-gradient-to-r from-primary via-accent to-secondary text-transparent bg-clip-text">
+              <FaHome className="text-primary w-5 h-5" />
+              <span className="bg-gradient-to-r from-primary via-accent to-secondary text-transparent bg-clip-text">
                 Gaurav
-              </span> */}
+              </span>
               {currentSection === 'home' && <AnimatedNotes />}
             </motion.a>
 
@@ -195,31 +276,32 @@ export default function Navbar() {
               <div className="bg-base-200/50 backdrop-blur-sm rounded-2xl p-1.5">
                 <ul className="flex items-center gap-1 relative">
                   {navItems.map((item) => (
-                    <motion.li key={item.id}>
-                      <a 
+                    <motion.li key={item.id}>                      <a 
                         href={item.href}
                         onClick={(e) => handleNavClick(e, item.href)}
                         className="relative px-4 py-2 rounded-xl block transition-all"
-                      >
-                        <AnimatePresence mode="wait">
+                      >                      <AnimatePresence mode="wait" initial={false}>
                           {currentSection === item.id && (
                             <motion.span
                               layoutId="navActive"
-                              className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-xl"
+                              className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl"
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
-                              transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                              transition={{ duration: 0.2 }}
                             />
                           )}
                         </AnimatePresence>
-                        <span className={`relative z-10 transition-colors duration-200 ${
-                          currentSection === item.id 
-                            ? 'text-primary font-medium' 
-                            : 'hover:text-primary/70'
-                        }`}>
-                          {item.label}
-                        </span>
+                        <div className="relative z-10 flex items-center gap-2">
+                          {item.icon && <item.icon className={`w-4 h-4 ${currentSection === item.id ? 'text-primary' : ''}`} />}
+                          <span className={`transition-colors duration-200 ${
+                            currentSection === item.id 
+                              ? 'text-primary font-medium' 
+                              : 'hover:text-primary/70'
+                          }`}>
+                            {item.label}
+                          </span>
+                        </div>
                         {currentSection === item.id && (
                           <motion.div 
                             className="absolute -bottom-4 left-0 right-0"
@@ -301,44 +383,53 @@ export default function Navbar() {
                   </motion.div>
                 </AnimatePresence>
               </motion.button>
-            </div>
-
-            <motion.button 
+            </div>            <motion.button 
               className="lg:hidden p-2 rounded-xl hover:bg-base-200/50 ml-auto menu-button"
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={() => setIsOpen(prev => !prev)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={isOpen ? 'close' : 'open'}
-                  initial={{ opacity: 0, rotate: -45 }}
+                  initial={{ opacity: 0, rotate: isOpen ? 45 : -45 }}
                   animate={{ opacity: 1, rotate: 0 }}
-                  exit={{ opacity: 0, rotate: 45 }}
-                  transition={{ duration: 0.2 }}
+                  exit={{ opacity: 0, rotate: isOpen ? -45 : 45 }}
+                  transition={{ duration: 0.15 }}
                 >
                   {isOpen ? <FiX className="w-6 h-6" /> : <FiMenu className="w-6 h-6" />}
                 </motion.div>
               </AnimatePresence>
             </motion.button>
           </div>
-        </div>
-
-        <AnimatePresence>
+        </div>        <AnimatePresence>
           {isOpen && (
             <motion.div
-              className="lg:hidden fixed inset-x-0 top-[60px] bg-base-100/95 backdrop-blur-md border-b border-base-200/50 shadow-lg mobile-menu"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              className="lg:hidden fixed inset-x-0 top-[60px] backdrop-blur-md border-b border-base-200/30 shadow-lg mobile-menu"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ 
+                opacity: 1, 
+                height: 'auto', 
+                transition: { 
+                  opacity: { duration: 0.2 },
+                  height: { duration: 0.3 }
+                } 
+              }}
+              exit={{ 
+                opacity: 0, 
+                height: 0,
+                transition: { 
+                  opacity: { duration: 0.2 },
+                  height: { duration: 0.2 }
+                }
+              }}
               style={{ 
                 maxHeight: 'calc(100vh - 60px)',
                 overflowY: 'auto',
-                zIndex: 40
+                zIndex: 40,
+                backgroundColor: 'var(--b1-a90)'
               }}
-            >
-              <div className="p-4">
+            ><div className="p-4">
                 <ul className="space-y-3">
                   {navItems.map((item, i) => (
                     <motion.li
@@ -356,7 +447,10 @@ export default function Navbar() {
                             : 'hover:bg-base-200/70'
                         }`}
                       >
-                        <span className="text-lg">{item.label}</span>
+                        <div className="flex items-center gap-2">
+                          {item.icon && <item.icon className="w-5 h-5" />}
+                          <span className="text-lg">{item.label}</span>
+                        </div>
                         {currentSection === item.id && (
                           <motion.div 
                             initial={{ scale: 0 }}

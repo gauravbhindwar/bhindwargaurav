@@ -280,9 +280,8 @@ export default function Hero() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
   return (
-    <section className={`${styles.heroSection} ${calligraphyFont.variable} relative min-h-[calc(100vh-4rem)]`}>
+    <section id="home" className={`${styles.heroSection} ${calligraphyFont.variable} relative min-h-[calc(100vh-4rem)]`}>
       {/* Background elements */}
       <canvas 
         ref={curveCanvasRef} 
