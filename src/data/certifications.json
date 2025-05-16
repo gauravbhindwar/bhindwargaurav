@@ -7,6 +7,7 @@
       "description": "The Complete Full-Stack Web Development Bootcamp is designed to help you become a full-stack web developer with just one course.",
       "credentialLink": "http://udemy.com/certificate/UC-43bb9650-fcab-4367-a25d-2255143a154a/",
       "pdfFile": "https://udemy-certificate.s3.amazonaws.com/pdf/UC-43bb9650-fcab-4367-a25d-2255143a154a.pdf",
+      "order": 1,
       "skills": ["HTML", "CSS", "JavaScript", "Node", "React", "PostgreSQL", "MongoDB", "Express", "Bootstrap", "Git", "GitHub","Vercel","Postman API"]
     },
     {
@@ -16,6 +17,7 @@
       "description": "The Complete Data Structures and Algorithms Bootcamp is a comprehensive course that covers a wide range of data structures and algorithms.",
       "credentialLink": "https://www.udemy.com/certificate/UC-64ff4313-7721-4281-bbc9-f07547452d46/",
       "pdfFile": "https://udemy-certificate.s3.amazonaws.com/pdf/UC-64ff4313-7721-4281-bbc9-f07547452d46.pdf",
+      "order": 2,
       "skills": ["Data Structures", "Algorithms", "Arrays", "Linked Lists", "Stacks", "Queues", "Trees", "Graphs", "Hashing", "Sorting", "Searching", "Recursion", "Dynamic Programming", "Greedy Algorithms", "Backtracking"]
     },
     {
@@ -25,6 +27,7 @@
       "description": "The Complete React & Next.js Development Bootcamp is a comprehensive course that covers the latest technologies for building modern web applications.",
       "credentialLink": "https://www.udemy.com/certificate/UC-6fa17c62-8dec-4a13-871d-469c264b2592/",
       "pdfFile": "https://udemy-certificate.s3.amazonaws.com/pdf/UC-6fa17c62-8dec-4a13-871d-469c264b2592.pdf", 
+      "order": 3,
       "skills": ["React", "Next.js", "JavaScript", "HTML", "CSS", "Tailwind CSS", "Styled Components", "Redux", "GraphQL", "Apollo Client", "Vercel"]
     },
     {
@@ -34,6 +37,7 @@
       "description": "The Complete Linux Bootcamp is a comprehensive course that covers the basics of Linux.",
       "credentialLink": "https://www.udemy.com/certificate/UC-a5fc7597-9049-49d8-b6f0-d85f5f5ef845/",
       "pdfFile": "https://udemy-certificate.s3.amazonaws.com/pdf/UC-a5fc7597-9049-49d8-b6f0-d85f5f5ef845.pdf",
+      "order": 4,
       "skills": ["Linux", "Command Line", "Bash", "Shell Scripting", "File System", "Permissions", "Networking", "Processes", "Text Processing", "Regular Expressions", "Package Management", "System Administration"]
     },
     {
@@ -43,6 +47,7 @@
       "description": "The Complete Particle Physics Bootcamp is a comprehensive course that covers the basics of Particle Physics.",
       "credentialLink": "https://www.coursera.org/account/accomplishments/certificate/DOCD9M8U01F2",
       "pdfFile": "https://coursera.org/share/bc702430feda409627e3a43bbbee675e",
+      "order": 5,
       "skills": ["Particle Physics", "Quantum Mechanics", "Quantum Field Theory", "Standard Model", "Symmetries", "Conservation Laws", "Elementary Particles", "Interactions", "Decays", "Collisions", "Detectors", "Accelerators", "Experiments"]
     },
     {
@@ -52,6 +57,7 @@
       "description":"The AWS Educate Get Started with Compute course is designed to help you learn the basics of cloud computing and AWS services.",
       "credentialLink":"https://www.credly.com/badges/1b153056-d146-4e5d-b277-84ca819d4e2b/linked_in_profile",
       "pdfFile":"https://www.credly.com/badges/1b153056-d146-4e5d-b277-84ca819d4e2b/public_url",
+      "order": 6,
       "skills":["AWS", "AWS Cloud","AWS Compute"]
     },
     {
@@ -61,6 +67,7 @@
       "description": "This credential demonstrates a foundational understanding of Artificial Intelligence concepts and processes, including common applications of AI, and generative AI. The individual has worked with generative AI tools to refine and create prompts.",
       "credentialLink": "https://www.credly.com/badges/b0ee4476-cccb-44fe-8c00-ba89329781fe",
       "pdfFile": "",
+      "order": 7,
       "skills": [
         "AI Applications",
         "Artificial Intelligence",
@@ -81,6 +88,7 @@
       "description": "Cisco verifies the earner of this badge successfully completed the Switching, Routing, and Wireless Essentials course and achieved this student level credential. The earner has a foundation in switching operations, wired and wireless LAN configuration using security best practices, redundancy protocols, and developed problem-solving skills. Earner participated in up to 45 practice activities and accumulated up to 21 hours of hands-on labs using Cisco hardware and/or the Cisco Packet Tracer tool.",
       "credentialLink": "https://www.credly.com/badges/cccabc9d-a4e8-4324-ac60-770c54fdb9e9/public_url",
       "pdfFile": "",
+      "order": 8,
       "skills": [
         "Access Connectivity",
         "Access Security",
@@ -99,6 +107,7 @@
       "description": "Cisco verifies the earner of this badge successfully completed the Enterprise Networking, Security and Automation course and achieved this student level credential. The earner has a foundation in scalable network architectures, dynamic routing, mitigation of security threats, wide-area networks and network automation.",
       "credentialLink": "https://www.credly.com/badges/3302000f-7cdb-42ad-a8a2-71ab7d2fc71a/public_url",
       "pdfFile": "",
+      "order": 9,
       "skills": [
         "Dynamic Routing",
         "Network Address Translation (NAT)",
@@ -117,6 +126,7 @@
       "description": "The AI BOT Development course is designed to help you learn the basics of AI and BOT Development.",
       "credentialLink": "https://certificate.givemycertificate.com/c/4a4b8e73-ae12-4657-a244-e7cf15390fcb",
       "pdfFile": "",
+      "order": 10,
       "skills": ["AI", "BOT Development"]
     },
     {
@@ -126,6 +136,7 @@
       "description": "Introduction to Graph Theory an online non-credit course authorized by University of California San Diego and offered through Coursera.",
       "credentialLink": "https://www.coursera.org/account/accomplishments/certificate/M3YLRQH8AYQL",
       "pdfFile": "",
+      "order": 11,
       "skills": [
         "Graph Theory",
         "Discrete Mathematics",

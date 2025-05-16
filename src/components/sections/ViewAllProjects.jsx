@@ -2,9 +2,9 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaGithub, FaExternalLinkAlt, FaArrowLeft, FaListUl } from 'react-icons/fa'
-import projectsData from '@/data/projects.json'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import useFetch from '@/hooks/useFetch'
 
 // Add DynamicLogo component
 const DynamicLogo = ({ title }) => {
@@ -89,6 +89,31 @@ const FeaturesDialog = ({ isOpen, onClose, project }) => {
 export default function ViewAllProjects() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [hoveredProject, setHoveredProject] = useState(null);
+  const { data: projectsData, loading, error } = useFetch('/api/projects');
+
+  if (loading) {
+    return (
+      <main className="min-h-screen py-20 bg-base-100">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center items-center min-h-[300px]">
+            <div className="loading loading-spinner loading-lg text-primary"></div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !projectsData) {
+    return (
+      <main className="min-h-screen py-20 bg-base-100">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center items-center min-h-[300px]">
+            <p className="text-error">Failed to load projects data</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen py-20 bg-base-100">

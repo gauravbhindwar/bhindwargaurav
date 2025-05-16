@@ -2,9 +2,48 @@
 
 import { motion } from 'framer-motion'
 import { FaExternalLinkAlt, FaAward, FaCalendarAlt } from 'react-icons/fa'
-import certificationsData from '@/data/certifications.json'
+import useFetch from '@/hooks/useFetch'
+import { CertificationsSkeleton } from '@/components/ui/SkeletonCard'
 
 export default function Certifications() {
+  const { data: certificationsData, loading, error } = useFetch('/api/certifications', {
+    revalidate: 600000 // 10 minutes cache
+  })
+
+  if (loading) {
+    return (
+      <section id="certifications" className="py-24 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-base-200/50 to-base-100/50 backdrop-blur-sm"></div>
+        
+        <div className="container mx-auto px-4 relative">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            className="max-w-7xl mx-auto"
+          >
+            <h2 className="text-5xl font-bold text-center mb-16">
+              <span className="warm-gradient">Certifications & Achievements</span>
+            </h2>
+
+            <CertificationsSkeleton />
+          </motion.div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error || !certificationsData) {
+    return (
+      <section id="certifications" className="py-24 relative">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center items-center min-h-[300px]">
+            <p className="text-error">Failed to load certifications data</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section id="certifications" className="py-24 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-base-200/50 to-base-100/50 backdrop-blur-sm"></div>

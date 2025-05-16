@@ -2,9 +2,10 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaGithub, FaExternalLinkAlt, FaArrowRight, FaTags, FaChevronDown, FaListUl } from 'react-icons/fa'
-import projectsData from '@/data/projects.json'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import useFetch from '@/hooks/useFetch'
+import { ProjectsSkeleton } from '@/components/ui/SkeletonCard'
 
 // Add this new component for dynamic project logo
 const DynamicLogo = ({ title }) => {
@@ -89,7 +90,55 @@ const FeaturesDialog = ({ isOpen, onClose, project }) => {
 export default function Projects() {
   const [showAll, setShowAll] = useState(false)
   const [hoveredProject, setHoveredProject] = useState(null)
-  const displayedProjects = showAll ? projectsData.projects : projectsData.projects.slice(0, 3)
+  const { data: projectsData, loading, error } = useFetch('/api/projects', {
+    revalidate: 300000 // 5 minutes cache
+  })
+  
+  // Show skeleton loading state
+  if (loading) {
+    return (
+      <section id="projects" className="py-24 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-base-200/50 to-base-100/50 backdrop-blur-sm"></div>
+        
+        <div className="container mx-auto px-4 relative">
+          <motion.div className="max-w-6xl mx-auto">
+            <div className="flex flex-col items-center justify-center gap-6 mb-16">
+              <h2 className="text-5xl font-bold text-center">
+                <span className="warm-gradient">Featured Projects</span>
+              </h2>
+              
+              <Link 
+                href="/projects" 
+                className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-base-200/50 hover:bg-base-300/50 transition-all duration-300"
+              >
+                View All Projects
+                <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            <ProjectsSkeleton />
+          </motion.div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error || !projectsData) {
+    return (
+      <section id="projects" className="py-24 relative">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center items-center min-h-[300px]">
+            <p className="text-error">Failed to load projects data</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // Use a memoized displayedProjects to prevent unnecessary rerenders
+  const displayedProjects = showAll ? 
+    projectsData.projects : 
+    projectsData.projects.slice(0, 3);
 
   return (
     <section id="projects" className="py-24 relative">

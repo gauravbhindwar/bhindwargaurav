@@ -1,8 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import contactData from '@/data/contact.json'
 import { FaGithub, FaLinkedin, FaEnvelope, FaMapMarkerAlt, FaPhone } from 'react-icons/fa'
+import useFetch from '@/hooks/useFetch'
 
 const socialIcons = {
   github: FaGithub,
@@ -10,6 +10,51 @@ const socialIcons = {
 }
 
 export default function Contact() {
+  const { data: contactData, loading, error } = useFetch('/api/contact', {
+    revalidate: 3600000 // 1 hour cache (contact info rarely changes)
+  })
+
+  if (loading) {
+    return (
+      <section id="contact" className="py-20 bg-base-200">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-4xl font-bold mb-12 text-center">
+              <span className="text-gradient">Let&apos;s Connect</span>
+            </h2>
+            
+            <div className="space-y-12 animate-pulse">
+              <div className="h-16 bg-base-300 rounded-lg w-3/4 mx-auto"></div>
+              
+              <div className="flex flex-col items-center gap-6">
+                <div className="h-8 bg-base-300 rounded-lg w-64"></div>
+                <div className="h-8 bg-base-300 rounded-lg w-48"></div>
+                <div className="h-8 bg-base-300 rounded-lg w-56"></div>
+              </div>
+              
+              <div className="flex justify-center gap-6">
+                <div className="h-14 w-14 bg-base-300 rounded-full"></div>
+                <div className="h-14 w-14 bg-base-300 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error || !contactData) {
+    return (
+      <section id="contact" className="py-20 bg-base-200">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-center items-center min-h-[300px]">
+            <p className="text-error">Failed to load contact data</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section id="contact" className="py-20 bg-base-200">
       <div className="container mx-auto px-4">

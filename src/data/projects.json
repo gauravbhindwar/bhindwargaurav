@@ -24,6 +24,7 @@
       "github": "https://github.com/gauravbhindwar/mentorlink",
       "live": "https://mentorlink-nu.vercel.app/",
       "preview": true,
+      "order": 1,
       "features": [
         "Role-based authentication for admins, mentors, and mentees",
         "Automated mentor-mentee matching system",
@@ -33,6 +34,25 @@
         "Real-time analytics and insights",
         "Session management and attendance tracking",
         "Secure data handling with JWT authentication"
+      ]
+    },
+    {
+      "id": "aidoc-1",
+      "title": "AIDOC: Medical Knowledge Base",
+      "description": "A medical RAG knowledge base using Pinecone, Next.js, and LangChain. Features real-time data updates and efficient document processing with Transformers.js.",
+      "image": "/projects/aidoc.png",
+      "tech": ["Next.js", "LangChain", "Pinecone", "Tailwind CSS", "Shadcn UI"],
+      "github": "https://github.com/gauravbhindwar/aidoc",
+      "live": "#",
+      "preview": true,
+      "order": 2,
+      "features": [
+        "Real-time data updates",
+        "Efficient document processing",
+        "Integration with Transformers.js",
+        "Advanced search capabilities",
+        "User-friendly interface",
+        "Secure data storage"
       ]
     },
     {
@@ -56,6 +76,7 @@
       "github": "https://github.com/gauravbhindwar/aidoc",
       "live": "https://mailman-kappa.vercel.app/",
       "preview": true,
+      "order": 3,
       "features": [
         "Secure credential-based authentication with email verification",
         "Dark/Light theme support with smooth transitions",
@@ -92,6 +113,7 @@
       "github": "https://github.com/gauravbhindwar/faculty-subject-selector",
       "live": "https://fss-vert.vercel.app/",
       "preview": true,
+      "order": 4,
       "features": [
         "Role-based authentication for Admin and Faculty users",
         "Comprehensive course catalog management system",
@@ -124,6 +146,7 @@
       "github": "https://github.com/gauravbhindwar/eventhorizon",
       "live": "https://eventhorizon-red.vercel.app/",
       "preview": true,
+      "order": 5,
       "features": [
         "Comprehensive event CRUD operations with calendar visualization",
         "Secure authentication and user profile management",
@@ -138,24 +161,6 @@
       ]
     },
     {
-      "id": "aidoc-1",
-      "title": "AIDOC: Medical Knowledge Base",
-      "description": "A medical RAG knowledge base using Pinecone, Next.js, and LangChain. Features real-time data updates and efficient document processing with Transformers.js.",
-      "image": "/projects/aidoc.png",
-      "tech": ["Next.js", "LangChain", "Pinecone", "Tailwind CSS", "Shadcn UI"],
-      "github": "https://github.com/gauravbhindwar/aidoc",
-      "live": "#",
-      "preview": true,
-      "features": [
-        "Real-time data updates",
-        "Efficient document processing",
-        "Integration with Transformers.js",
-        "Advanced search capabilities",
-        "User-friendly interface",
-        "Secure data storage"
-      ]
-    },
-    {
       "id": "cropin-2",
       "title": "CROPIN: A Web App",
       "description": "A full-stack Next.js app connecting farmers with buyers. Features secure authentication with NextAuth.js, MongoDB integration, and comprehensive schema validation using ZOD.",
@@ -164,6 +169,7 @@
       "github": "https://github.com/gauravbhindwar/cropin",
       "live": "#",
       "preview": true,
+      "order": 6,
       "features": [
         "Secure authentication with NextAuth.js",
         "MongoDB integration",

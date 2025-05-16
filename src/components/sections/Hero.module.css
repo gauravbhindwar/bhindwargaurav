@@ -1,41 +1,905 @@
-.heroSection {
-  background: linear-gradient(to bottom right, rgba(var(--primary-rgb), 0.05), transparent);
+/* ============= App Container Viewport Adjustments ============= */
+:root {
+  /* Add viewport control variables */
+  --section-padding-bottom: 4rem;
+  --app-min-height: 100vh;
+  --app-content-max-width: 1280px;
+  --app-gutter: 1rem;
+  
+  /* Existing variables */
+  --glow-opacity: 0.15;
+  --glow-opacity-hover: 0.25;
+  --terminal-bg: hsl(var(--b1)/0.8);
+  --terminal-border: hsl(var(--p)/0.3);
+  --terminal-header-bg: hsl(var(--b2));
+  --code-color-comment: hsl(var(--s)/0.7);
+  --code-color-keyword: hsl(var(--p));
+  --code-color-string: hsl(var(--su)/0.9);
+  --code-color-variable: hsl(var(--er)/0.9);
+  --code-color-property: hsl(var(--s));
+  --code-color-array: hsl(var(--ac));
+  --animation-duration-slow: 6s;
+  --animation-duration-normal: 4s;
+  --animation-duration-fast: 2s;
 }
 
-.profileImageContainer {
+/* Font styles for calligraphy */
+.font-calligraphy {
+  font-family: var(--font-calligraphy, 'Kalam', cursive);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  transform: rotate(-2deg);
   position: relative;
-  transform-style: preserve-3d;
-  margin: 2rem auto; /* Added margin for better spacing on mobile */
+  z-index: 5; /* Ensure it's above overlays */
+  padding: 0.1em 0.2em;
+  background-clip: initial; /* Override the background-clip */
+  -webkit-background-clip: initial;
+  color: white; /* Use solid white for better visibility */
+  /* text-stroke is not standard CSS, using only the webkit version */
+  -webkit-text-stroke: 1px hsl(var(--p));
+  text-shadow: 
+    0 0 3px hsl(var(--p)), 
+    0 0 8px hsl(var(--p)), 
+    0 0 12px hsl(var(--a));
+  animation: gentle-float 4s ease-in-out infinite alternate;
 }
 
-.glowEffect {
-  position: absolute;
-  inset: -2px;
-  background: linear-gradient(45deg, 
-    rgba(var(--primary-rgb), 0.5),
-    rgba(var(--secondary-rgb), 0.5)
-  );
-  filter: blur(15px);
-  opacity: 0.15;
-  transition: opacity 0.3s ease;
-  border-radius: 50%; /* Ensure glow follows circular shape */
-}
-
-.profileImageContainer:hover .glowEffect {
-  opacity: 0.25;
-}
-
-/* Updated floating animation for smoother movement */
-.floatingAnimation {
-  animation: floating 6s ease-in-out infinite;
-  transform-origin: center center;
-}
-
-@keyframes floating {
-  0%, 100% { 
-    transform: translateY(0px) scale(1); 
+/* Core section styling */
+.heroSection {
+  background: linear-gradient(to bottom, hsla(var(--b1)), hsla(var(--b2)));
+  position: relative;
+  min-height: 100vh; /* Ensures the section takes at least the full viewport height */
+  padding-bottom: 2rem; /* Adds padding at the bottom to prevent content cut-off */
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    padding-bottom: 3rem; /* More padding on mobile */
   }
-  50% { 
-    transform: translateY(-20px) scale(1.02); 
+}
+
+/* New gradient background with better visibility */
+.gradientBg {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 20% 25%, hsla(var(--p)/0.25) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, hsla(var(--s)/0.2) 0%, transparent 60%);
+  opacity: 0.7; /* Increased opacity */
+}
+
+/* Hero card with glassmorphism effect */
+.heroCard {
+  background: hsla(var(--b1)/0.7);
+  backdrop-filter: blur(5px);
+  border-radius: 16px;
+  border: 1px solid hsla(var(--b3)/0.5);
+  padding: 2.5rem 2rem;
+  box-shadow: 0 10px 30px -15px hsla(var(--n)/0.3);
+  overflow: visible; /* Changed from hidden to visible to allow math formula to show */
+  position: relative;
+  margin-bottom: 4rem; /* Added margin to account for the formula */
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    padding: 2rem 1.5rem;
+    margin-bottom: 5rem; /* Increased margin for smaller screens */
+  }
+}
+
+/* ============= Text Elements Styling ============= */
+.greetingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  @media (min-width: 1024px) {
+    justify-content: flex-start;
+  }
+}
+
+.greeting {
+  display: inline-flex;
+  align-items: center;
+  font-size: 1.125rem;
+  font-weight: 500;
+  /* color: hsla(var(--pc)/1); */
+  /* background: hsla(var(--p)/0.2); */
+  padding: 0.5rem 0.75rem;
+  border-radius: 9999px;
+  margin-bottom: 0.5rem;
+  border: 1px solid hsla(var(--p)/0.6);
+  position: relative;
+  z-index: 5;
+}
+
+.heading {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+  font-family: var(--font-display);
+  overflow: hidden;
+  
+  @media (min-width: 640px) {
+    font-size: 3.5rem;
+  }
+  
+  @media (min-width: 768px) {
+    font-size: 4rem;
+  }
+}
+
+.heading::after {
+  content: "";
+  display: block;
+  height: 2px;
+  width: 30%;
+  margin-top: 0.5rem;
+  background: linear-gradient(90deg, 
+    hsla(var(--p)/0.8), 
+    hsla(var(--s)/0.5),
+    transparent
+  );
+  border-radius: 2px;
+  opacity: 0.7;
+}
+
+/* Enhanced name styling */
+.nameContainer {
+  display: inline-block;
+  position: relative;
+  margin: 0.1em 0 0.2em;
+  padding: 0.1em 0.1em;
+}
+
+.nameUnderline {
+  position: absolute;
+  bottom: -0.1em;
+  left: 0;
+  height: 0.1em;
+  background: linear-gradient(90deg, hsla(var(--p)/0.7), hsla(var(--s)/0.7));
+  border-radius: 999px;
+}
+
+.gradientText {
+  background: linear-gradient(90deg, 
+    hsl(var(--p)), 
+    hsl(var(--s)), 
+    hsl(var(--a)), 
+    hsl(var(--p))
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* color: transparent; */
+  background-size: 300% auto;
+  animation: textShine 8s ease-in-out infinite alternate;
+  font-size: 1.1em;
+  display: inline-block;
+  padding: 0 0.1em;
+  text-shadow: 0 0 20px hsla(var(--p)/0.3);
+  letter-spacing: -0.01em;
+  font-weight: 900;
+  position: relative;
+}
+
+/* Enhanced visibility class */
+.enhancedVisibility {
+  text-shadow: 
+    0 0 5px hsla(var(--p)/0.5),
+    0 0 20px hsla(var(--p)/0.4),
+    0 0 30px hsla(var(--p)/0.3);
+  -webkit-text-stroke: 0.5px hsla(var(--p)/0.1); /* Subtle outline for better visibility */
+  position: relative;
+}
+
+.enhancedVisibility::after {
+  content: '';
+  position: absolute;
+  bottom: -0.1em;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, hsla(var(--p)/0.7), hsla(var(--s)/0.7));
+  border-radius: 999px;
+}
+
+@keyframes textShine {
+  0% { background-position: 0% center; }
+  100% { background-position: 100% center; }
+}
+
+@keyframes gentle-float {
+  0% { transform: rotate(-2deg) translateY(0); }
+  50% { transform: rotate(-1deg) translateY(-3px); }
+  100% { transform: rotate(-2deg) translateY(0); }
+}
+
+/* Removed ::after pseudo-element that was causing visibility issues */
+
+.bio {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: hsla(var(--bc)/0.9);
+  max-width: 550px;
+  margin: 0 auto;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  letter-spacing: 0.01em;
+  background: hsla(var(--b1)/0.3);
+  /* padding: 1rem 1.25rem; */
+  border-radius: 8px;
+  border-left: 3px solid hsla(var(--p)/0.6);
+  box-shadow: 0 4px 15px -5px hsla(var(--b1)/0.2);
+  transition: all 0.3s ease;
+  
+  @media (min-width: 1024px) {
+    margin: 0;
+  }
+}
+
+.bio:hover {
+  border-left-color: hsl(var(--p));
+  background: hsla(var(--b1)/0.4);
+  transform: translateX(2px);
+}
+
+.codeTag {
+  font-family: monospace;
+  font-weight: bold;
+  color: hsl(var(--p)/0.8);
+  font-size: 1.1em;
+}
+
+/* ============= Role Typing Effect ============= */
+.roleWrapper {
+  display: inline-flex;
+  align-items: center;
+  font-family: monospace;
+  padding: 0.5rem 1rem;
+  background: hsla(var(--b3)/0.8); /* Increased opacity */
+  border: 1px solid hsla(var(--p)/0.4); /* More visible border */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px hsla(var(--b1)/0.3);
+  transition: all 0.2s ease;
+}
+
+.roleWrapper:hover {
+  box-shadow: 0 8px 16px hsla(var(--b1)/0.3);
+  border-color: hsla(var(--p)/0.4);
+}
+
+.typedPrefix {
+  color: #f5072f;
+  font-weight: bold;
+  font-size: 2rem;
+  text-shadow: 0 0 5px hsla(var(--p)/0.3);
+  letter-spacing: 0.1em;
+  margin-right: 4px;
+  font-family: 'Fira Code', 'Menlo', 'Monaco', monospace;
+  position: relative;
+  display: inline-block;
+}
+
+.typedPrefix::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    hsla(var(--p)/0), 
+    hsla(var(--p)/0.7), 
+    hsla(var(--p)/0)
+  );
+  opacity: 0.7;
+}
+
+.typedText {
+  margin-left: 6px;
+  font-weight: bold;
+  font-size: 2rem;
+  color: hsl(var(--a));
+  font-family: 'Space Mono', 'Courier New', monospace;
+  text-shadow: 
+    0 0 10px hsla(var(--a)/0.4),
+    0 0 20px hsla(var(--a)/0.2);
+  letter-spacing: -0.02em;
+  position: relative;
+  display: inline-block;
+}
+
+.typedText::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -4px;
+  width: calc(100% + 8px);
+  height: 4px;
+  background: linear-gradient(90deg, 
+    hsla(var(--a)/0), 
+    hsla(var(--a)/0.7), 
+    hsla(var(--a)/0)
+  );
+  border-radius: 4px;
+  opacity: 0.7;
+  transform: translateY(4px);
+}
+
+/* ============= Code Comment Styling ============= */
+.codeComment {
+  font-family: 'Fira Code', 'Consolas', monospace;
+  color: hsl(var(--s)/0.9);
+  font-size: 0.95rem;
+  /* padding: 0.75rem 1rem; */
+  border-left: 3px solid hsl(var(--p)/0.6);
+  background: hsla(var(--b2)/0.5);
+  border-radius: 0 6px 6px 0;
+  transition: all 0.3s ease;
+  max-width: 550px;
+  margin: 0 auto;
+  position: relative;
+  letter-spacing: -0.02em;
+  
+  @media (min-width: 1024px) {
+    margin: 0;
+  }
+}
+
+.codeComment:hover {
+  border-left-color: hsl(var(--p));
+  background: hsla(var(--b2)/0.6);
+  transform: translateX(2px);
+}
+
+.codeComment::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 3px;
+  width: calc(100% - 6px);
+  height: 1px;
+  background: linear-gradient(90deg, 
+    hsla(var(--p)/0.6), 
+    hsla(var(--s)/0.4), 
+    hsla(var(--p)/0)
+  );
+  border-radius: 1px;
+}
+
+.commentChar {
+  color: hsl(var(--p));
+  margin-right: 0.5rem;
+  font-weight: bold;
+}
+
+.commentText {
+  font-family: var(--font-fira-code, 'Fira Code', monospace);
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+  position: relative;
+  display: inline;
+}
+
+/* ============= Skills Container ============= */
+.skillsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  
+  @media (min-width: 1024px) {
+    justify-content: flex-start;
+  }
+}
+
+.skillBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 700; /* Increased font weight for better visibility */
+  font-family: var(--font-space-mono, 'Space Mono', monospace);
+  letter-spacing: 0.01em;
+  background: hsla(var(--b2)/0.8);
+  color: hsla(var(--bc)/0.95);
+  border: 1px solid hsla(var(--b3)/0.8);
+  box-shadow: 0 2px 5px hsla(var(--n)/0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.skillBadge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg, 
+    transparent, 
+    hsla(var(--p)/0.1), 
+    transparent
+  );
+  transition: all 0.6s ease;
+}
+
+.skillBadge:hover {
+  background: hsla(var(--p)/0.15);
+  color: hsla(var(--pc)/0.9);
+  border-color: hsla(var(--p)/0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px hsla(var(--n)/0.3);
+}
+
+.skillBadge:hover::before {
+  left: 100%;
+}
+
+/* ============= CTA Container ============= */
+.ctaContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+  
+  @media (min-width: 1024px) {
+    justify-content: flex-start;
+  }
+}
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 700;
+  font-family: var(--font-inter, 'Inter', sans-serif);
+  letter-spacing: 0.01em;
+  border-radius: 8px;
+  background: linear-gradient(to right, hsl(var(--p)), hsl(var(--s)));
+  color: hsl(var(--pc));
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px hsla(var(--p)/0.3);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.primaryButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, hsl(var(--s)), hsl(var(--p)));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  border-radius: 7px;
+}
+
+.primaryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px hsla(var(--p)/0.4);
+}
+
+.primaryButton:hover::before {
+  opacity: 1;
+}
+
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 700;
+  font-family: var(--font-inter, 'Inter', sans-serif);
+  letter-spacing: 0.01em;
+  border-radius: 8px;
+  background: transparent;
+  color: hsl(var(--bc));
+  border: 1px solid hsl(var(--b3));
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.secondaryButton::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, 
+    hsla(var(--p)/0), 
+    hsla(var(--p)/0.8), 
+    hsla(var(--p)/0)
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: scaleX(0.8);
+}
+
+.secondaryButton:hover {
+  background: hsla(var(--b2)/0.6);
+  border-color: hsl(var(--p));
+  transform: translateY(-2px);
+  box-shadow: 0 5px 10px hsla(var(--n)/0.2);
+}
+
+.secondaryButton:hover::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.buttonIcon {
+  font-size: 1.25rem;
+  margin-left: 0.25rem;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.primaryButton:hover .buttonIcon {
+  transform: translateX(3px) scale(1.1);
+}
+
+.secondaryButton:hover .buttonIcon {
+  transform: translateY(-3px) scale(1.1);
+}
+
+/* ============= Profile Styling ============= */
+.profileWrapper {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 0 auto;
+  
+  @media (min-width: 640px) {
+    width: 300px;
+    height: 300px;
+  }
+  
+  @media (min-width: 768px) {
+    width: 340px;
+    height: 340px;
+  }
+}
+
+/* ============= Bio Highlight Text ============= */
+.highlightText {
+  position: relative;
+  display: inline-block;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.highlightText::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  opacity: 0.3;
+  transform: scaleX(0.8);
+  transform-origin: center;
+  transition: all 0.3s ease;
+}
+
+.highlightText:hover::after {
+  opacity: 0.6;
+  transform: scaleX(1);
+}
+
+/* Primary highlight */
+.highlightPrimary {
+  color: hsl(var(--p));
+}
+
+/* Secondary highlight */
+.highlightSecondary {
+  color: hsl(var(--s));
+}
+
+/* Accent highlight */
+.highlightAccent {
+  color: hsl(var(--a));
+}
+
+/* Info highlight */
+.highlightInfo {
+  color: hsl(var(--in));
+}
+
+/* Success highlight */
+.highlightSuccess {
+  color: hsl(var(--su));
+}
+
+/* Warning highlight */
+.highlightWarning {
+  color: hsl(var(--wa));
+}
+
+/* Error highlight */
+.highlightError {
+  color: hsl(var(--er));
+}
+
+/* Orbital rings animation */
+.orbitalRing {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px dashed hsla(var(--p)/0.3);
+  width: 110%;
+  height: 110%;
+  top: -5%;
+  left: -5%;
+  animation: orbit 15s linear infinite;
+}
+
+.orbitalRing:nth-child(2) {
+  width: 120%;
+  height: 120%;
+  top: -10%;
+  left: -10%;
+  border-color: hsla(var(--s)/0.2);
+  animation-direction: reverse;
+}
+
+.orbitalRing:nth-child(3) {
+  width: 130%;
+  height: 130%;
+  top: -15%;
+  left: -15%;
+  border-color: hsla(var(--a)/0.15);
+  animation-duration: 20s;
+}
+
+@keyframes orbit {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Binary code ring */
+.binaryCodeRing {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.binaryDigit {
+  position: absolute;
+  font-family: monospace;
+  font-weight: bold;
+  color: hsla(var(--p)/0.6);
+  opacity: 0;
+  animation: binaryFade 6s linear infinite;
+  text-shadow: 0 0 5px hsla(var(--p)/0.3);
+}
+
+@keyframes binaryFade {
+  0% { opacity: 0; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0; }
+}
+
+/* Terminal frame styling */
+.terminalFrame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: hsla(var(--b1)/0.9);
+  border: 1px solid hsla(var(--p)/0.3);
+  box-shadow: 0 0 15px hsla(var(--p)/0.2), 0 10px 30px -15px hsla(var(--n)/0.5);
+  animation: float 8s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotateZ(0deg); }
+  25% { transform: translateY(-8px) rotateZ(1deg); }
+  75% { transform: translateY(8px) rotateZ(-1deg); }
+}
+
+/* Improve terminal header visibility */
+.terminalHeader {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: hsla(var(--b2)/0.95); /* Increased opacity for better contrast */
+  border-bottom: 1px solid hsla(var(--b3)/0.9); /* More visible border */
+}
+
+.terminalControls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.terminalDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.terminalTitle {
+  margin-left: 12px;
+  font-size: 12px;
+  font-family: monospace;
+  color: hsla(var(--bc)/0.7);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Code overlay effect */
+.codeOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    hsla(var(--b1)/0.4) 100%
+  );
+  background-size: 100% 30px;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 28px,
+    hsla(var(--p)/0.05) 28px,
+    hsla(var(--p)/0.05) 30px
+  );
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Scanline effect */
+.scanline {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: hsla(var(--p)/0.2);
+  opacity: 0.4;
+  top: 0;
+  box-shadow: 0 0 10px 2px hsla(var(--p)/0.4);
+  animation: scanline 3s linear infinite;
+}
+
+@keyframes scanline {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+/* Code brackets styling */
+.bracketLeft, 
+.bracketRight {
+  position: absolute;
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 48px;
+  color: hsla(var(--p)/0.4);
+  text-shadow: 0 0 8px hsla(var(--p)/0.2);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.bracketLeft {
+  left: -20px;
+  top: 45%;
+}
+
+.bracketRight {
+  right: -20px;
+  top: 45%;
+}
+
+/* Floating code keywords */
+.floatingKeywords {
+  position: absolute;
+  inset: -20px;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.floatingWord {
+  position: absolute;
+  font-family: monospace;
+  color: hsla(var(--p)/0.4);
+  white-space: nowrap;
+  text-shadow: 0 0 5px hsla(var(--p)/0.2);
+}
+
+/* Math formula styling */
+.mathFormula {
+  font-family: 'Times New Roman', serif;
+  font-size: 1.1rem;
+  color: hsla(var(--bc)/0.85);
+  border-top: 1px solid hsla(var(--b3)/0.8);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.mathFormula:hover {
+  color: hsla(var(--bc)/0.9);
+}
+
+.sigma {
+  font-size: 2.5rem;
+  color: hsl(var(--p));
+  text-shadow: 0 0 5px hsla(var(--p)/0.3);
+  transition: text-shadow 0.3s ease;
+}
+
+.mathFormula:hover .sigma {
+  text-shadow: 0 0 8px hsla(var(--p)/0.5);
+}
+
+.formulaText {
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem;
+  text-align: center;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  
+  /* Responsive font size */
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
+}
+
+.resultText {
+  font-weight: 700; /* Increased weight */
+  margin-left: 0.5rem;
+  text-shadow: 0 0 8px hsla(var(--p)/0.4); /* Added glow */
+  white-space: normal; /* Allow line breaks */
+  display: inline-block;
+  max-width: 100%;
+  word-break: break-word;
+  
+  /* Responsive font size */
+  @media (max-width: 480px) {
+    margin-top: 0.25rem;
+    display: block; /* Force new line on very small screens */
   }
 }

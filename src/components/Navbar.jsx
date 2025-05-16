@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { FaSun, FaMoon, FaMusic, FaFileDownload } from 'react-icons/fa'
 import { FiMenu, FiX } from 'react-icons/fi'
-import contactData from '../data/contact.json'
+import useFetch from '@/hooks/useFetch'
 
 // Custom hook for section detection
 const useActiveSection = () => {
@@ -78,7 +78,8 @@ export default function Navbar() {
   const [scrollProgress, setScrollProgress] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const [currentSection, setCurrentSection] = useState('') // Add this line
+  const [currentSection, setCurrentSection] = useState('')
+  const { data: contactData, loading, error } = useFetch('/api/contact')
 
   const navItems = [
     { href: '#projects', label: 'Projects', id: 'projects' },
@@ -88,9 +89,12 @@ export default function Navbar() {
   ]
 
   const downloadResume = () => {
-    // Use the resume link from contact.json
-    if (contactData.resumeLink) {
+    // Use the resume link from contact data with error handling
+    if (contactData && contactData.resumeLink) {
       window.open(contactData.resumeLink, '_blank', 'noopener,noreferrer')
+    } else if (!loading && !error) {
+      // If not loading and no error but still no data
+      console.warn('Resume link not available')
     }
   }
 
@@ -107,21 +111,17 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Updated handleNavClick function
   const handleNavClick = (e, href) => {
     e.preventDefault();
     
-    // Close mobile menu first
     setIsOpen(false);
     
-    // Add small delay to allow menu animation to complete
     setTimeout(() => {
       const element = document.querySelector(href);
       if (element) {
-        const yOffset = -80; // Increased offset to account for navbar height
+        const yOffset = -80;
         const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
         
-        // Update current section
         const sectionId = href.replace('#', '');
         setCurrentSection(sectionId);
         
@@ -130,10 +130,9 @@ export default function Navbar() {
           behavior: 'smooth'
         });
       }
-    }, 300); // Increased delay for smoother transition
+    }, 300);
   };
 
-  // Add click outside handler to close mobile menu
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (isOpen && !event.target.closest('.mobile-menu') && !event.target.closest('.menu-button')) {
@@ -145,7 +144,6 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
-  // Close menu on scroll
   useEffect(() => {
     const handleScroll = () => {
       if (isOpen) setIsOpen(false);
@@ -155,17 +153,14 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isOpen]);
 
-  // Add useEffect to sync currentSection with activeSection
   useEffect(() => {
     if (activeSection) {
       setCurrentSection(activeSection)
     }
   }, [activeSection])
 
-  // In the JSX, replace all instances of activeSection with currentSection
   return (
     <>
-      {/* Progress Bar */}
       <motion.div className="fixed top-0 left-0 right-0 h-[2px] z-50 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent">
         <motion.div
           className="h-full bg-gradient-to-r from-pink-600 via-purple-600 to-red-600"
@@ -174,31 +169,28 @@ export default function Navbar() {
         />
       </motion.div>
 
-      {/* Navigation Bar */}
       <motion.nav 
         className={`fixed top-0 left-0 right-0 z-40 ${
           isScrolled ? 'py-2 bg-base-100/80 backdrop-blur-md shadow-lg shadow-purple-900/10 border-b border-purple-900/20' : 'py-4 bg-transparent'
-        } transition-all duration-200 ease-in-out`} // Faster transition
+        } transition-all duration-200 ease-in-out`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 20 }} // Faster initial animation
+        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between relative">
-            {/* Logo - make it smaller on medium screens */}
             <motion.a 
               href="#home"
               className="text-xl md:text-lg lg:text-xl font-bold relative group shrink-0"
               whileHover={{ scale: 1.05 }}
               onClick={(e) => handleNavClick(e, '#home')}
             >
-              <span className="bg-gradient-to-r from-primary via-accent to-secondary text-transparent bg-clip-text">
-                Gaurav.Bhindwar
-              </span>
+              {/* <span className="bg-gradient-to-r from-primary via-accent to-secondary text-transparent bg-clip-text">
+                Gaurav
+              </span> */}
               {currentSection === 'home' && <AnimatedNotes />}
             </motion.a>
 
-            {/* Desktop Menu - Adjust visibility breakpoint */}
             <div className="hidden lg:flex items-center gap-8">
               <div className="bg-base-200/50 backdrop-blur-sm rounded-2xl p-1.5">
                 <ul className="flex items-center gap-1 relative">
@@ -244,14 +236,13 @@ export default function Navbar() {
                 </ul>
               </div>
 
-              {/* Resume Download Button */}
               <motion.button 
                 onClick={downloadResume}
                 className="relative p-2.5 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-red-600 text-white flex items-center gap-2 text-sm overflow-hidden group"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                disabled={loading || !contactData}
               >
-                {/* Glow effect */}
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-pink-600/50 via-purple-600/50 to-red-600/50 blur-xl"
                   animate={{
@@ -265,13 +256,15 @@ export default function Navbar() {
                   }}
                 />
                 
-                {/* Content */}
                 <div className="relative z-10 flex items-center gap-2">
-                  <FaFileDownload className="w-4 h-4" />
+                  {loading ? (
+                    <div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <FaFileDownload className="w-4 h-4" />
+                  )}
                   <span className="font-medium">Resume</span>
                 </div>
                 
-                {/* Shine effect */}
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
                   animate={{
@@ -286,7 +279,6 @@ export default function Navbar() {
                 />
               </motion.button>
 
-              {/* Theme Toggle */}
               <motion.button 
                 onClick={toggleTheme}
                 className="p-2.5 rounded-xl bg-base-200/50 backdrop-blur-sm"
@@ -311,7 +303,6 @@ export default function Navbar() {
               </motion.button>
             </div>
 
-            {/* Mobile/Tablet Menu Button - Adjust positioning */}
             <motion.button 
               className="lg:hidden p-2 rounded-xl hover:bg-base-200/50 ml-auto menu-button"
               onClick={() => setIsOpen(!isOpen)}
@@ -333,7 +324,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile/Tablet Menu - Adjust layout and positioning */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
@@ -380,7 +370,6 @@ export default function Navbar() {
                     </motion.li>
                   ))}
 
-                  {/* Mobile Theme Toggle */}
                   <motion.li
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -407,7 +396,6 @@ export default function Navbar() {
                     </button>
                   </motion.li>
 
-                  {/* Mobile Resume Download Button */}
                   <motion.li
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -415,9 +403,9 @@ export default function Navbar() {
                   >
                     <button
                       onClick={downloadResume}
+                      disabled={loading || !contactData}
                       className="relative w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-red-600 text-white overflow-hidden group"
                     >
-                      {/* Glow effect */}
                       <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-pink-600/50 via-purple-600/50 to-red-600/50 blur-xl"
                         animate={{
@@ -431,15 +419,17 @@ export default function Navbar() {
                         }}
                       />
                       
-                      {/* Content */}
                       <span className="relative z-10 text-lg font-medium">Download Resume</span>
                       <motion.div 
                         className="relative z-10 p-2 bg-white/10 backdrop-blur-sm rounded-lg"
                       >
-                        <FaFileDownload className="w-5 h-5" />
+                        {loading ? (
+                          <div className="w-5 h-5 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>
+                        ) : (
+                          <FaFileDownload className="w-5 h-5" />
+                        )}
                       </motion.div>
                       
-                      {/* Shine effect */}
                       <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
                         animate={{
