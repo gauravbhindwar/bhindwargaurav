@@ -204,7 +204,7 @@ export default function AdminProjects() {
                   name="id"
                   value={formData.id}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                   placeholder="unique-project-id"
                   required
                 />
@@ -216,7 +216,7 @@ export default function AdminProjects() {
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                   placeholder="Project Title"
                   required
                 />
@@ -230,7 +230,7 @@ export default function AdminProjects() {
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={2}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                 placeholder="Brief description for project cards"
                 required
               />
@@ -243,7 +243,7 @@ export default function AdminProjects() {
                 value={formData.longDescription}
                 onChange={handleInputChange}
                 rows={4}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                 placeholder="Detailed description with features, challenges, etc."
               />
             </div>
@@ -256,7 +256,7 @@ export default function AdminProjects() {
                   name="image"
                   value={formData.image}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                   placeholder="https://example.com/image.png"
                 />
               </div>
@@ -266,7 +266,7 @@ export default function AdminProjects() {
                   name="status"
                   value={formData.status}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                 >
                   {statusOptions.map(status => (
                     <option key={status} value={status}>
@@ -285,7 +285,7 @@ export default function AdminProjects() {
                   name="githubUrl"
                   value={formData.githubUrl}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                   placeholder="https://github.com/username/repo"
                 />
               </div>
@@ -296,7 +296,7 @@ export default function AdminProjects() {
                   name="liveUrl"
                   value={formData.liveUrl}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                   placeholder="https://your-project.com"
                 />
               </div>
@@ -310,7 +310,7 @@ export default function AdminProjects() {
                   name="order"
                   value={formData.order}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                   placeholder="0"
                   min="0"
                 />

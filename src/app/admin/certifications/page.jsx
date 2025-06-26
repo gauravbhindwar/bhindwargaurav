@@ -209,7 +209,7 @@ export default function AdminCertifications() {
                       name="title"
                       value={formData.title}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                       required
                     />
                   </div>
@@ -220,7 +220,7 @@ export default function AdminCertifications() {
                       name="issuer"
                       value={formData.issuer}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                       required
                     />
                   </div>
@@ -234,7 +234,7 @@ export default function AdminCertifications() {
                       name="date"
                       value={formData.date}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                     />
                   </div>
                   <div>
@@ -244,7 +244,7 @@ export default function AdminCertifications() {
                       name="order"
                       value={formData.order}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                     />
                   </div>
                 </div>
@@ -257,7 +257,7 @@ export default function AdminCertifications() {
                       name="credentialId"
                       value={formData.credentialId}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                     />
                   </div>
                   <div>
@@ -267,7 +267,7 @@ export default function AdminCertifications() {
                       name="credentialUrl"
                       value={formData.credentialUrl}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                     />
                   </div>
                 </div>
@@ -279,7 +279,7 @@ export default function AdminCertifications() {
                     value={formData.description}
                     onChange={handleInputChange}
                     rows={3}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                     placeholder="Brief description of the certification..."
                   />
                 </div>
@@ -290,7 +290,7 @@ export default function AdminCertifications() {
                     type="text"
                     value={formData.skills.join(', ')}
                     onChange={handleSkillsChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                     placeholder="React, JavaScript, Node.js"
                   />
                 </div>

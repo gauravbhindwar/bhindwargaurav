@@ -59,8 +59,19 @@ export default function AdminSkills() {
       const allCourses = []
       if (data.courses) {
         Object.entries(data.courses).forEach(([type, courseList]) => {
-          courseList.forEach(course => {
-            allCourses.push({ ...course, type })
+          courseList.forEach(courseName => {
+            // If courseName is a string, convert it to an object with a name property
+            if (typeof courseName === 'string') {
+              allCourses.push({ 
+                name: courseName,
+                type,
+                description: '',
+                url: ''
+              })
+            } else {
+              // If it's already an object, just add the type
+              allCourses.push({ ...courseName, type })
+            }
           })
         })
       }
@@ -173,7 +184,7 @@ export default function AdminSkills() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-8">
       {/* Header with Actions */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between">
@@ -218,7 +229,7 @@ export default function AdminSkills() {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                 placeholder="Enter name"
                 required
               />
@@ -233,7 +244,7 @@ export default function AdminSkills() {
                       name="category"
                       value={formData.category}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                     >
                       {categories.map(category => (
                         <option key={category} value={category}>{category}</option>
@@ -246,7 +257,7 @@ export default function AdminSkills() {
                       name="level"
                       value={formData.level}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                     >
                       {skillLevels.map(level => (
                         <option key={level} value={level}>{level}</option>
@@ -263,7 +274,7 @@ export default function AdminSkills() {
                     name="type"
                     value={formData.type}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                   >
                     {courseTypes.map(type => (
                       <option key={type} value={type}>{type}</option>
@@ -277,7 +288,7 @@ export default function AdminSkills() {
                     value={formData.description}
                     onChange={handleInputChange}
                     rows={3}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                   />
                 </div>
                 <div>
@@ -287,7 +298,7 @@ export default function AdminSkills() {
                     name="url"
                     value={formData.url}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                   />
                 </div>
               </>
@@ -394,10 +405,18 @@ export default function AdminSkills() {
                     <div key={index} className="border border-gray-200 rounded-lg p-4">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h4 className="text-lg font-medium text-gray-900">{course.name}</h4>
-                          <p className="text-sm text-gray-600 mt-1">{course.description}</p>
+                          <div className="flex items-center">
+                            <h4 className="text-lg font-medium text-gray-900">{course.name}</h4>
+                            <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              course.type === 'current' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {course.type === 'current' ? 'Current' : 'Completed'}
+                            </span>
+                          </div>
+                          {course.description && (
+                            <p className="text-sm text-gray-600 mt-1">{course.description}</p>
+                          )}
                           <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-                            <span>Type: {course.type}</span>
                             {course.url && (
                               <a
                                 href={course.url}

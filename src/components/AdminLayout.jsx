@@ -51,7 +51,7 @@ export default function AdminLayout({ children }) {
 
   return (
     <AdminProtection>
-      <div className="min-h-screen bg-gray-50 lg:flex">
+      <div className="h-screen flex overflow-hidden bg-gray-50">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -62,69 +62,73 @@ export default function AdminLayout({ children }) {
         </div>
       )}
 
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:flex lg:flex-col lg:w-64 ${
+      {/* Sidebar - fixed on desktop */}
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
-        <div className="flex items-center justify-between h-16 px-6 bg-gray-900">
-          <Link href="/admin/dashboard" className="text-white font-bold text-xl">
-            Admin Panel
-          </Link>
-          <button
-            className="text-white lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-        
-        <nav className="mt-8">
-          <div className="px-4 space-y-2">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <item.icon className={`mr-3 h-5 w-5 ${isActive ? 'text-blue-700' : 'text-gray-400'}`} />
-                  {item.name}
-                </Link>
-              )
-            })}
+      } lg:translate-x-0 lg:fixed lg:w-64`}>
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-between h-16 px-6 bg-gray-900">
+            <Link href="/admin/dashboard" className="text-white font-bold text-xl">
+              Admin Panel
+            </Link>
+            <button
+              className="text-white lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X className="w-6 h-6" />
+            </button>
           </div>
           
-          <div className="mt-8 pt-8 border-t border-gray-200">
-            <div className="px-4 space-y-2">
-              <Link
-                href="/"
-                className="flex items-center px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:text-gray-900 hover:bg-gray-50 transition-colors"
-              >
-                <Home className="mr-3 h-5 w-5 text-gray-400" />
-                View Portfolio
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:text-gray-900 hover:bg-gray-50 transition-colors"
-              >
-                <LogOut className="mr-3 h-5 w-5 text-gray-400" />
-                Sign Out
-              </button>
-            </div>
+          <div className="flex-1 flex flex-col overflow-y-auto">
+            <nav className="flex-1 mt-8">
+              <div className="px-4 space-y-2">
+                {navigation.map((item) => {
+                  const isActive = pathname === item.href
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
+                      onClick={() => setSidebarOpen(false)}
+                    >
+                      <item.icon className={`mr-3 h-5 w-5 ${isActive ? 'text-blue-700' : 'text-gray-400'}`} />
+                      {item.name}
+                    </Link>
+                  )
+                })}
+              </div>
+              
+              <div className="mt-8 pt-8 border-t border-gray-200">
+                <div className="px-4 space-y-2">
+                  <Link
+                    href="/"
+                    className="flex items-center px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                  >
+                    <Home className="mr-3 h-5 w-5 text-gray-400" />
+                    View Portfolio
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                  >
+                    <LogOut className="mr-3 h-5 w-5 text-gray-400" />
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            </nav>
           </div>
-        </nav>
+        </div>
       </div>
 
       {/* Main content */}
-      <div className="flex-1 lg:flex lg:flex-col lg:overflow-hidden">
-        {/* Top header */}
-        <div className="sticky top-0 z-30 bg-white shadow-sm border-b border-gray-200 lg:static">
+      <div className="flex-1 flex flex-col lg:ml-64">
+        {/* Top header - sticky within the main content */}
+        <div className="sticky top-0 z-30 bg-white shadow-sm border-b border-gray-200">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center">
@@ -151,8 +155,8 @@ export default function AdminLayout({ children }) {
           </div>
         </div>
 
-        {/* Page content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 lg:overflow-auto">
+        {/* Page content - scrollable */}
+        <main className="flex-1 h-screen overflow-y-auto p-4 sm:p-6 lg:p-8 pt-16">
           {children}
         </main>
       </div>
