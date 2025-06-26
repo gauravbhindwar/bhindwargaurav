@@ -17,7 +17,8 @@ export async function middleware(request) {
       if (pathname === '/admin/login') {
         // If already authenticated, redirect to dashboard
         if (token?.role === 'admin') {
-          return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+          const callbackUrl = request.nextUrl.searchParams.get('callbackUrl') || '/admin/dashboard';
+          return NextResponse.redirect(new URL(callbackUrl, request.url));
         }
         // Otherwise allow access to login
         return NextResponse.next();

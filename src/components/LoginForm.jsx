@@ -17,31 +17,40 @@ export default function LoginForm() {
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    checkSetupStatus()
-    checkExistingSession()
-    
-    // Check for error from URL params
-    if (searchParams) {
-      const urlError = searchParams.get('error')
-      if (urlError) {
-        setError('Authentication failed. Please try again.')
+    const initializeLogin = async () => {
+      setLoading(true)
+      try {
+        await checkSetupStatus()
+        await checkExistingSession()
+        
+        // Check for error from URL params
+        if (searchParams) {
+          const urlError = searchParams.get('error')
+          if (urlError) {
+            setError('Authentication failed. Please try again.')
+          }
+        }
+      } catch (error) {
+        console.error('Login initialization error:', error)
+      } finally {
+        setLoading(false)
       }
     }
+    
+    initializeLogin()
   }, [searchParams])
 
   const checkExistingSession = async () => {
     try {
-      setLoading(true)
       const session = await getSession()
       
       if (session?.user?.role === 'admin') {
-        router.replace('/admin/dashboard')
+        const callbackUrl = searchParams?.get('callbackUrl') || '/admin/dashboard'
+        router.replace(callbackUrl)
         return
       }
     } catch (error) {
       console.error('Session check error:', error)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -69,33 +78,27 @@ export default function LoginForm() {
 
     try {
       // Get callback URL from query params or use dashboard as default
-      const callbackUrl = searchParams.get('callbackUrl') || '/admin/dashboard'
+      const callbackUrl = searchParams?.get('callbackUrl') || '/admin/dashboard'
       
       // Attempt authentication
       const result = await signIn('credentials', {
         username: formData.username,
         password: formData.password,
-        redirect: false,
-        callbackUrl: callbackUrl
+        redirect: false
       })
 
       if (result?.error) {
         setError('Invalid username or password')
-        setLoading(false)
       } else if (result?.ok) {
-        // Use window.location for a full page reload
-        if (result.url) {
-          window.location.href = result.url
-        } else {
-          window.location.href = callbackUrl
-        }
+        // Successful login - redirect using router to avoid full page reload
+        router.replace(callbackUrl)
       } else {
         setError('Authentication failed. Please try again.')
-        setLoading(false)
       }
     } catch (error) {
       console.error('Login error:', error)
       setError('An error occurred. Please try again.')
+    } finally {
       setLoading(false)
     }
   }

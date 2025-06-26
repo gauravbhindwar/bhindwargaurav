@@ -10,6 +10,11 @@ export default function AdminProtection({ children, requiredRole = 'admin' }) {
 
   // Handle authentication and redirects
   useEffect(() => {
+    // Don't redirect if we're already on the login page
+    if (typeof window !== 'undefined' && window.location.pathname === '/admin/login') {
+      return;
+    }
+    
     // Only redirect when status is definitively known and user isn't authenticated properly
     if (status !== 'loading' && (status === 'unauthenticated' || session?.user?.role !== requiredRole)) {
       // Save the current path as callbackUrl for post-login redirect
