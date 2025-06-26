@@ -176,10 +176,19 @@ export default function AdminCertifications() {
             </div>
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => setShowForm(!showForm)}
+                onClick={() => {
+                  resetForm();
+                  if (editingCertification) {
+                    // If we're in edit mode, ensure form stays open but resets
+                    setEditingCertification(null);
+                  } else {
+                    // Toggle form visibility if not in edit mode
+                    setShowForm(!showForm);
+                  }
+                }}
                 className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium"
               >
-                {showForm ? 'Cancel' : 'Add Certification'}
+                {showForm && editingCertification ? 'Add Certification' : (showForm ? 'Cancel' : 'Add Certification')}
               </button>
               <Link
                 href="/admin/dashboard"

@@ -17,17 +17,26 @@ export default function AdminProjects() {
     id: '',
     title: '',
     description: '',
-    longDescription: '',
     image: '',
-    technologies: [],
+    tech: [], // Changed from 'technologies' to 'tech' to match the data structure
+    features: [], // Added features array
     githubUrl: '',
     liveUrl: '',
     status: 'completed',
     featured: false,
     order: 0
   })
+  // For the text input of technologies
+  const [technologiesInput, setTechnologiesInput] = useState('')
+  // For the text input of features
+  const [featuresInput, setFeaturesInput] = useState('')
+  const [techInputError, setTechInputError] = useState('')
+  const [featuresInputError, setFeaturesInputError] = useState('')
+  // Track which project's features are expanded
+  const [expandedFeatures, setExpandedFeatures] = useState({})
 
   const statusOptions = ['completed', 'in-progress', 'planned']
+  // Keep technology options as reference for suggestions or validation if needed
   const technologyOptions = ['React', 'Next.js', 'Node.js', 'JavaScript', 'TypeScript', 'Python', 'MongoDB', 'PostgreSQL', 'Tailwind CSS', 'Express.js', 'Vue.js', 'Angular', 'PHP', 'Laravel', 'Django', 'Flask', 'Docker', 'AWS', 'Vercel', 'Heroku']
 
   useEffect(() => {
@@ -40,6 +49,14 @@ export default function AdminProjects() {
 
     fetchProjects()
   }, [session, status, router])
+
+  // Toggle features expansion for a specific project
+  const toggleFeatures = (projectId) => {
+    setExpandedFeatures(prev => ({
+      ...prev,
+      [projectId]: !prev[projectId]
+    }))
+  }
 
   const fetchProjects = async () => {
     try {
@@ -55,24 +72,78 @@ export default function AdminProjects() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }))
-  }
-
-  const handleTechnologyChange = (technology) => {
-    setFormData(prev => ({
-      ...prev,
-      technologies: prev.technologies.includes(technology)
-        ? prev.technologies.filter(tech => tech !== technology)
-        : [...prev.technologies, technology]
-    }))
+    
+    // Special handling for technologies input
+    if (name === 'tech') {
+      // Always update the input field value
+      setTechnologiesInput(value)
+      
+      try {
+        // Process the comma-separated string into an array
+        const techArray = value
+          .split(',')
+          .map(tech => tech.trim())
+          .filter(tech => tech !== '')
+        
+        // Update the formData state with the processed array
+        setFormData(prev => ({
+          ...prev,
+          tech: techArray // Changed from 'technologies' to 'tech'
+        }))
+        
+        // Clear any previous errors if we successfully parsed the input
+        setTechInputError('')
+      } catch (error) {
+        console.error('Error processing technologies input:', error)
+        setTechInputError('Could not process technologies. Please check your format.')
+      }
+    } 
+    // Special handling for features input
+    else if (name === 'features') {
+      // Always update the input field value
+      setFeaturesInput(value)
+      
+      try {
+        // Process the newline-separated string into an array
+        const featuresArray = value
+          .split('\n')
+          .map(feature => feature.trim())
+          .filter(feature => feature !== '')
+        
+        // Update the formData state with the processed array
+        setFormData(prev => ({
+          ...prev,
+          features: featuresArray
+        }))
+        
+        // Clear any previous errors if we successfully parsed the input
+        setFeaturesInputError('')
+      } catch (error) {
+        console.error('Error processing features input:', error)
+        setFeaturesInputError('Could not process features. Please check your format.')
+      }
+    } else {
+      // Standard handling for other inputs
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }))
+    }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
+
+    // No need to validate if technologies is empty - it's optional
+    if (technologiesInput.trim() !== '' && formData.tech.length === 0) {
+      // Only show error if they typed something but parsing failed
+      setTechInputError('Please check your technologies format (comma-separated values)')
+      setLoading(false)
+      return
+    } else {
+      setTechInputError('')
+    }
 
     try {
       const method = editingProject ? 'PUT' : 'POST'
@@ -105,20 +176,49 @@ export default function AdminProjects() {
   }
 
   const handleEdit = (project) => {
+    console.log('handleEdit called with project:', project)
+    console.log('Project tech field:', project.tech)
+    console.log('Project features field:', project.features)
+    
     setEditingProject(project)
+    
+    // Clear any previous error states
+    setTechInputError('')
+    setFeaturesInputError('')
+    
+    // Ensure tech and features are arrays, even if not present in the project data
+    const technologies = Array.isArray(project.tech) ? project.tech : []
+    const features = Array.isArray(project.features) ? project.features : []
+    
+    // First set the form data with all project values
     setFormData({
       id: project.id || '',
       title: project.title || '',
       description: project.description || '',
-      longDescription: project.longDescription || '',
       image: project.image || '',
-      technologies: project.technologies || [],
-      githubUrl: project.githubUrl || '',
-      liveUrl: project.liveUrl || '',
+      tech: technologies, // Changed from 'technologies' to 'tech'
+      features: features, // Added features array
+      githubUrl: project.github || '', // Note: projects.json uses 'github' not 'githubUrl'
+      liveUrl: project.live || '', // Note: projects.json uses 'live' not 'liveUrl'
       status: project.status || 'completed',
-      featured: project.featured || false,
+      featured: project.preview || false, // Note: projects.json uses 'preview' not 'featured'
       order: project.order || 0
     })
+    
+    // Explicitly set the technologies input field
+    // Convert array to comma-separated string
+    const techString = technologies.join(', ')
+    setTechnologiesInput(techString)
+    
+    // Explicitly set the features input field
+    // Convert array to newline-separated string
+    const featuresString = features.join('\n')
+    setFeaturesInput(featuresString)
+    
+    console.log('Technologies string set to:', techString)
+    console.log('Features string set to:', featuresString)
+    
+    // Show the form after setting all values
     setShowForm(true)
   }
 
@@ -147,15 +247,19 @@ export default function AdminProjects() {
       id: '',
       title: '',
       description: '',
-      longDescription: '',
       image: '',
-      technologies: [],
+      tech: [], // Changed from 'technologies' to 'tech'
+      features: [], // Added features array
       githubUrl: '',
       liveUrl: '',
       status: 'completed',
       featured: false,
       order: 0
     })
+    setTechnologiesInput('') // Reset technologies input
+    setFeaturesInput('') // Reset features input
+    setTechInputError('') // Clear any error messages
+    setFeaturesInputError('') // Clear any error messages
     setEditingProject(null)
   }
 
@@ -181,7 +285,16 @@ export default function AdminProjects() {
             <p className="text-gray-600 mt-1">Add, edit, and delete your portfolio projects</p>
           </div>
           <button
-            onClick={() => setShowForm(!showForm)}
+            onClick={() => {
+              resetForm();
+              if (editingProject) {
+                // If we're in edit mode, ensure form stays open but resets
+                setEditingProject(null);
+              } else {
+                // Toggle form visibility if not in edit mode
+                setShowForm(!showForm);
+              }
+            }}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
           >
             Add Project
@@ -229,22 +342,10 @@ export default function AdminProjects() {
                 name="description"
                 value={formData.description}
                 onChange={handleInputChange}
-                rows={2}
+                rows={3}
                 className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
                 placeholder="Brief description for project cards"
                 required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Long Description</label>
-              <textarea
-                name="longDescription"
-                value={formData.longDescription}
-                onChange={handleInputChange}
-                rows={4}
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900"
-                placeholder="Detailed description with features, challenges, etc."
               />
             </div>
 
@@ -329,19 +430,62 @@ export default function AdminProjects() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">Technologies</label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                {technologyOptions.map(tech => (
-                  <label key={tech} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={formData.technologies.includes(tech)}
-                      onChange={() => handleTechnologyChange(tech)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <span className="ml-2 text-sm text-gray-700">{tech}</span>
-                  </label>
-                ))}
-              </div>
+              <textarea
+                name="tech"
+                value={technologiesInput}
+                onChange={handleInputChange}
+                rows={2}
+                className={`mt-1 block w-full border ${techInputError ? 'border-red-300' : 'border-gray-300'} rounded-md px-3 py-2 text-sm ${techInputError ? 'text-red-900' : 'text-gray-900'}`}
+                placeholder="Enter technologies separated by commas (e.g. React, Next.js, Tailwind CSS)"
+              />
+              {techInputError ? (
+                <p className="mt-1 text-xs text-red-600">{techInputError}</p>
+              ) : (
+                <div className="mt-1">
+                  <p className="text-xs text-gray-500">Enter technologies separated by commas (e.g., React, Next.js, Tailwind CSS)</p>
+                  {formData.tech.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {formData.tech.map((tech, index) => (
+                        <span key={index} className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-50 text-blue-700">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">Features</label>
+              <textarea
+                name="features"
+                value={featuresInput}
+                onChange={handleInputChange}
+                rows={6}
+                className={`mt-1 block w-full border ${featuresInputError ? 'border-red-300' : 'border-gray-300'} rounded-md px-3 py-2 text-sm ${featuresInputError ? 'text-red-900' : 'text-gray-900'}`}
+                placeholder="Enter each feature on a new line"
+              />
+              {featuresInputError ? (
+                <p className="mt-1 text-xs text-red-600">{featuresInputError}</p>
+              ) : (
+                <div className="mt-1">
+                  <p className="text-xs text-gray-500">Enter each feature on a separate line</p>
+                  {formData.features.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      <p className="text-xs font-medium text-gray-700">Features Preview:</p>
+                      <ul className="text-xs text-gray-600 space-y-1">
+                        {formData.features.map((feature, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="text-green-500 mr-2">•</span>
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end space-x-3">
@@ -389,7 +533,7 @@ export default function AdminProjects() {
                     <div className="flex-1">
                       <div className="flex items-center space-x-3">
                         <h4 className="text-lg font-medium text-gray-900">{project.title}</h4>
-                        {project.featured && (
+                        {project.preview && (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                             Featured
                           </span>
@@ -403,19 +547,42 @@ export default function AdminProjects() {
                         </span>
                       </div>
                       <p className="text-sm text-gray-600 mt-2">{project.description}</p>
-                      {project.technologies && project.technologies.length > 0 && (
+                      {project.tech && project.tech.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-1">
-                          {project.technologies.map((tech, index) => (
+                          {project.tech.map((tech, index) => (
                             <span key={index} className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-800">
                               {tech}
                             </span>
                           ))}
                         </div>
                       )}
+                      {project.features && project.features.length > 0 && (
+                        <div className="mt-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h5 className="text-sm font-medium text-gray-900">Key Features:</h5>
+                            {project.features.length > 3 && (
+                              <button
+                                onClick={() => toggleFeatures(project.id || project._id)}
+                                className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                              >
+                                {expandedFeatures[project.id || project._id] ? 'Show Less' : `View All ${project.features.length} Features`}
+                              </button>
+                            )}
+                          </div>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            {(expandedFeatures[project.id || project._id] ? project.features : project.features.slice(0, 3)).map((feature, index) => (
+                              <li key={index} className="flex items-start">
+                                <span className="text-green-500 mr-2 mt-0.5">•</span>
+                                <span className="flex-1">{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                       <div className="mt-4 flex items-center space-x-4 text-sm text-gray-500">
-                        {project.githubUrl && (
+                        {project.github && (
                           <a
-                            href={project.githubUrl}
+                            href={project.github}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center text-gray-600 hover:text-gray-900"
@@ -424,9 +591,9 @@ export default function AdminProjects() {
                             GitHub
                           </a>
                         )}
-                        {project.liveUrl && (
+                        {project.live && project.live !== '#' && (
                           <a
-                            href={project.liveUrl}
+                            href={project.live}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center text-blue-600 hover:text-blue-800"

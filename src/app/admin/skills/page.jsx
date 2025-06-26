@@ -196,7 +196,14 @@ export default function AdminSkills() {
             <button
               onClick={() => {
                 setFormType('skill')
-                setShowForm(!showForm)
+                resetForm()
+                if (editingItem) {
+                  // If we're in edit mode, ensure form stays open but resets
+                  setEditingItem(null)
+                } else {
+                  // Toggle form visibility if not in edit mode
+                  setShowForm(!showForm)
+                }
               }}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
             >
@@ -205,7 +212,14 @@ export default function AdminSkills() {
             <button
               onClick={() => {
                 setFormType('course')
-                setShowForm(!showForm)
+                resetForm()
+                if (editingItem) {
+                  // If we're in edit mode, ensure form stays open but resets
+                  setEditingItem(null)
+                } else {
+                  // Toggle form visibility if not in edit mode
+                  setShowForm(!showForm)
+                }
               }}
               className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
             >
