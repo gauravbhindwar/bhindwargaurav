@@ -1,6 +1,8 @@
 import connectToDatabase from '@/lib/mongodb';
 import { Skill, Course } from '@/models/Skill';
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET() {
   try {
@@ -71,5 +73,181 @@ export async function GET() {
     } catch (fallbackError) {
       return NextResponse.json({ error: 'Failed to fetch skills' }, { status: 500 });
     }
+  }
+}
+
+// Helper function to check admin authentication
+async function checkAdminAuth() {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user || session.user.role !== 'admin') {
+    return false;
+  }
+  return true;
+}
+
+// Create new skill (Admin only)
+export async function POST(request) {
+  try {
+    const isAdmin = await checkAdminAuth();
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { type, ...skillData } = await request.json();
+    
+    if (!type || (type !== 'skill' && type !== 'course')) {
+      return NextResponse.json(
+        { error: 'Type must be either "skill" or "course"' },
+        { status: 400 }
+      );
+    }
+
+    await connectToDatabase();
+
+    let newItem;
+    if (type === 'skill') {
+      if (!skillData.name || !skillData.category) {
+        return NextResponse.json(
+          { error: 'Name and category are required for skills' },
+          { status: 400 }
+        );
+      }
+      newItem = new Skill(skillData);
+    } else {
+      if (!skillData.name || !skillData.type) {
+        return NextResponse.json(
+          { error: 'Name and type are required for courses' },
+          { status: 400 }
+        );
+      }
+      newItem = new Course(skillData);
+    }
+
+    await newItem.save();
+
+    return NextResponse.json({ 
+      message: `${type} created successfully`, 
+      [type]: newItem 
+    }, { status: 201 });
+
+  } catch (error) {
+    console.error('Error creating skill/course:', error);
+    return NextResponse.json(
+      { error: 'Failed to create item' },
+      { status: 500 }
+    );
+  }
+}
+
+// Update skill or course (Admin only)
+export async function PUT(request) {
+  try {
+    const isAdmin = await checkAdminAuth();
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { type, id, ...updateData } = await request.json();
+    
+    if (!type || !id) {
+      return NextResponse.json(
+        { error: 'Type and ID are required' },
+        { status: 400 }
+      );
+    }
+
+    await connectToDatabase();
+
+    let updatedItem;
+    if (type === 'skill') {
+      updatedItem = await Skill.findByIdAndUpdate(
+        id,
+        { ...updateData, updatedAt: new Date() },
+        { new: true }
+      );
+    } else if (type === 'course') {
+      updatedItem = await Course.findByIdAndUpdate(
+        id,
+        { ...updateData, updatedAt: new Date() },
+        { new: true }
+      );
+    } else {
+      return NextResponse.json(
+        { error: 'Invalid type' },
+        { status: 400 }
+      );
+    }
+
+    if (!updatedItem) {
+      return NextResponse.json(
+        { error: 'Item not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ 
+      message: `${type} updated successfully`, 
+      [type]: updatedItem 
+    });
+
+  } catch (error) {
+    console.error('Error updating skill/course:', error);
+    return NextResponse.json(
+      { error: 'Failed to update item' },
+      { status: 500 }
+    );
+  }
+}
+
+// Delete skill or course (Admin only)
+export async function DELETE(request) {
+  try {
+    const isAdmin = await checkAdminAuth();
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type');
+    const id = searchParams.get('id');
+    
+    if (!type || !id) {
+      return NextResponse.json(
+        { error: 'Type and ID are required' },
+        { status: 400 }
+      );
+    }
+
+    await connectToDatabase();
+
+    let deletedItem;
+    if (type === 'skill') {
+      deletedItem = await Skill.findByIdAndDelete(id);
+    } else if (type === 'course') {
+      deletedItem = await Course.findByIdAndDelete(id);
+    } else {
+      return NextResponse.json(
+        { error: 'Invalid type' },
+        { status: 400 }
+      );
+    }
+
+    if (!deletedItem) {
+      return NextResponse.json(
+        { error: 'Item not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ 
+      message: `${type} deleted successfully` 
+    });
+
+  } catch (error) {
+    console.error('Error deleting skill/course:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete item' },
+      { status: 500 }
+    );
   }
 }

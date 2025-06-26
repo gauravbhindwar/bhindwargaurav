@@ -1,6 +1,8 @@
 import connectToDatabase from '@/lib/mongodb';
 import Project from '@/models/Project';
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET() {
   try {
@@ -61,5 +63,148 @@ export async function GET() {
     } catch (fallbackError) {
       return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
     }
+  }
+}
+
+// Helper function to check admin authentication
+async function checkAdminAuth() {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user || session.user.role !== 'admin') {
+    return false;
+  }
+  return true;
+}
+
+// Create new project (Admin only)
+export async function POST(request) {
+  try {
+    const isAdmin = await checkAdminAuth();
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const projectData = await request.json();
+    
+    // Validate required fields
+    if (!projectData.id || !projectData.title || !projectData.description) {
+      return NextResponse.json(
+        { error: 'Missing required fields: id, title, description' },
+        { status: 400 }
+      );
+    }
+
+    await connectToDatabase();
+
+    // Check if project with this ID already exists
+    const existingProject = await Project.findOne({ id: projectData.id });
+    if (existingProject) {
+      return NextResponse.json(
+        { error: 'Project with this ID already exists' },
+        { status: 409 }
+      );
+    }
+
+    const project = new Project(projectData);
+    await project.save();
+
+    return NextResponse.json({ 
+      message: 'Project created successfully', 
+      project 
+    }, { status: 201 });
+
+  } catch (error) {
+    console.error('Error creating project:', error);
+    return NextResponse.json(
+      { error: 'Failed to create project' },
+      { status: 500 }
+    );
+  }
+}
+
+// Update project (Admin only)
+export async function PUT(request) {
+  try {
+    const isAdmin = await checkAdminAuth();
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id, ...updateData } = await request.json();
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Project ID is required' },
+        { status: 400 }
+      );
+    }
+
+    await connectToDatabase();
+
+    const project = await Project.findOneAndUpdate(
+      { id },
+      { ...updateData, updatedAt: new Date() },
+      { new: true }
+    );
+
+    if (!project) {
+      return NextResponse.json(
+        { error: 'Project not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ 
+      message: 'Project updated successfully', 
+      project 
+    });
+
+  } catch (error) {
+    console.error('Error updating project:', error);
+    return NextResponse.json(
+      { error: 'Failed to update project' },
+      { status: 500 }
+    );
+  }
+}
+
+// Delete project (Admin only)
+export async function DELETE(request) {
+  try {
+    const isAdmin = await checkAdminAuth();
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Project ID is required' },
+        { status: 400 }
+      );
+    }
+
+    await connectToDatabase();
+
+    const project = await Project.findOneAndDelete({ id });
+
+    if (!project) {
+      return NextResponse.json(
+        { error: 'Project not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ 
+      message: 'Project deleted successfully' 
+    });
+
+  } catch (error) {
+    console.error('Error deleting project:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete project' },
+      { status: 500 }
+    );
   }
 }

@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { FaSun, FaMoon, FaMusic, FaFileDownload, FaHome, FaPaintBrush, FaCircle, FaArrowRight, FaStar } from 'react-icons/fa'
 import { FiMenu, FiX } from 'react-icons/fi'
+import Link from 'next/link'
 import useFetch from '@/hooks/useFetch'
 
 // Throttle function for performance optimization

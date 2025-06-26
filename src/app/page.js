@@ -9,6 +9,7 @@ const Hero = dynamic(() => import('@/components/sections/Hero'), {
 const Projects = dynamic(() => import('@/components/sections/Projects'), { ssr: false })
 const Skills = dynamic(() => import('@/components/sections/Skills'), { ssr: false })
 const Contact = dynamic(() => import('@/components/sections/Contact'), { ssr: false })
+const AdminAccess = dynamic(() => import('@/components/AdminAccess'), { ssr: false })
 import Certifications from '@/components/sections/Certifications'
 
 export default function Home() {
@@ -19,6 +20,7 @@ export default function Home() {
       <Skills />
       <Certifications />
       <Contact />
+      <AdminAccess />
     </main>
   )
 }

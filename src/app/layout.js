@@ -1,7 +1,8 @@
 import { Geist, Montserrat, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import Navbar from "@/components/Navbar";
+import ConditionalNavbar from "@/components/ConditionalNavbar";
+import AuthProvider from "@/components/AuthProvider";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -29,10 +30,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="light">
       <body className={`${montserrat.variable} ${spaceGrotesk.variable} font-sans`}>
-        <ThemeProvider>
-          <Navbar />
-          {children}
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <ConditionalNavbar />
+            {children}
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

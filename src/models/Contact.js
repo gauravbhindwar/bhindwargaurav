@@ -12,6 +12,8 @@ const ContactSchema = new mongoose.Schema({
     linkedin: String,
   },
   resumeLink: String,
+  twitter: String,
+  description: String,
 });
 
 export default mongoose.models.Contact || mongoose.model('Contact', ContactSchema);
