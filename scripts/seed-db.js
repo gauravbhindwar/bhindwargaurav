@@ -67,9 +67,11 @@ const courseSchema = new mongoose.Schema({
   name: String,
   type: {
     type: String,
-    enum: ['current', 'completed'],
+    enum: ['current', 'completed', 'paused', 'planned'],
     required: true
-  }
+  },
+  description: String,
+  url: String
 });
 
 const certificationSchema = new mongoose.Schema({

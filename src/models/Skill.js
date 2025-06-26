@@ -22,11 +22,15 @@ const CourseSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  // Keep type for backward compatibility but make it required
   type: {
     type: String,
-    enum: ['current', 'completed'],
-    required: true
-  }
+    enum: ['current', 'completed', 'paused', 'planned'],
+    required: true,
+    default: 'current'
+  },
+  description: String,
+  url: String
 });
 
 // Export both models

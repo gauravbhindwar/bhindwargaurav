@@ -52,8 +52,34 @@ export async function GET() {
     
     // Restructure courses by type
     const coursesByType = {
-      current: courses.filter(course => course.type === 'current').map(course => course.name),
-      completed: courses.filter(course => course.type === 'completed').map(course => course.name)
+      current: courses.filter(course => course.type === 'current').map(course => ({
+        _id: course._id,
+        name: course.name,
+        type: course.type,
+        description: course.description || '',
+        url: course.url || ''
+      })),
+      completed: courses.filter(course => course.type === 'completed').map(course => ({
+        _id: course._id,
+        name: course.name,
+        type: course.type,
+        description: course.description || '',
+        url: course.url || ''
+      })),
+      paused: courses.filter(course => course.type === 'paused').map(course => ({
+        _id: course._id,
+        name: course.name,
+        type: course.type,
+        description: course.description || '',
+        url: course.url || ''
+      })),
+      planned: courses.filter(course => course.type === 'planned').map(course => ({
+        _id: course._id,
+        name: course.name,
+        type: course.type,
+        description: course.description || '',
+        url: course.url || ''
+      }))
     };
     
     // Set cache headers
@@ -114,12 +140,15 @@ export async function POST(request) {
       }
       newItem = new Skill(skillData);
     } else {
-      if (!skillData.name || !skillData.type) {
+      if (!skillData.name || !skillData.courseType) {
         return NextResponse.json(
-          { error: 'Name and type are required for courses' },
+          { error: 'Name and course type are required for courses' },
           { status: 400 }
         );
       }
+      // Map courseType to type for the Course model
+      skillData.type = skillData.courseType;
+      delete skillData.courseType;
       newItem = new Course(skillData);
     }
 
@@ -166,6 +195,11 @@ export async function PUT(request) {
         { new: true }
       );
     } else if (type === 'course') {
+      // Map courseType to type for the Course model if present
+      if (updateData.courseType) {
+        updateData.type = updateData.courseType;
+        delete updateData.courseType;
+      }
       updatedItem = await Course.findByIdAndUpdate(
         id,
         { ...updateData, updatedAt: new Date() },

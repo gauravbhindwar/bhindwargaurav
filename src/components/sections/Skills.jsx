@@ -250,65 +250,84 @@ function TechnicalSkills({ skillsData }) {
       </div>
       
       {/* Courses Section */}
-      <div className="mt-12">
-        <div className="bg-gradient-to-br from-base-200/80 to-base-300/80 backdrop-blur-lg rounded-3xl p-8 
-                      border border-base-content/5 hover:border-primary/20 transition-all duration-300
-                      hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.1)]">
-          <motion.h3 
-            className="text-2xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
-            initial={{ opacity: 0, y: -10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            Academic Journey
-          </motion.h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {['Current', 'Completed'].map((type, idx) => (
-              <motion.div
-                key={type}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.2, duration: 0.6 }}
-                className="bg-base-100/30 rounded-2xl p-6 border border-base-content/5"
-              >
-                <h4 className="font-bold mb-4 flex items-center">
-                  {type === 'Current' ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  )}
-                  {type} Coursework
-                  <span className="ml-2 badge badge-sm badge-primary">{skillsData.courses[type.toLowerCase()].length}</span>
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {skillsData.courses[type.toLowerCase()].map((course, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: index * 0.05, duration: 0.4 }}
-                    >
-                      <div className="px-3 py-1.5 rounded-lg bg-base-200/70 border border-base-content/5 
-                                hover:border-primary/20 hover:bg-base-300/50 transition-all duration-300 
-                                hover:scale-105">
-                        <span className="text-sm">{course}</span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
+      {skillsData.courses && (
+        <div className="mt-12">
+          <div className="bg-gradient-to-br from-base-200/80 to-base-300/80 backdrop-blur-lg rounded-3xl p-8 
+                        border border-base-content/5 hover:border-primary/20 transition-all duration-300
+                        hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.1)]">
+            <motion.h3 
+              className="text-2xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+              initial={{ opacity: 0, y: -10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              Academic Journey
+            </motion.h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {['Current', 'Completed', 'Paused', 'Planned'].map((type, idx) => {
+                const courses = skillsData.courses[type.toLowerCase()] || []
+                if (courses.length === 0) return null
+                
+                return (
+                  <motion.div
+                    key={type}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.2, duration: 0.6 }}
+                    className="bg-base-100/30 rounded-2xl p-6 border border-base-content/5"
+                  >
+                    <h4 className="font-bold mb-4 flex items-center">
+                      {type === 'Current' ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      ) : type === 'Completed' ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      ) : type === 'Paused' ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                      )}
+                      {type} Coursework
+                      <span className="ml-2 badge badge-sm badge-primary">
+                        {courses.length}
+                      </span>
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {courses.map((course, index) => (
+                        <motion.div
+                          key={course._id || index}
+                          initial={{ opacity: 0, x: -10 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: index * 0.05, duration: 0.4 }}
+                        >
+                          <div className="px-3 py-1.5 rounded-lg bg-base-200/70 border border-base-content/5 
+                                    hover:border-primary/20 hover:bg-base-300/50 transition-all duration-300 
+                                    hover:scale-105">
+                            <span className="text-sm">
+                              {typeof course === 'string' ? course : course.name}
+                            </span>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

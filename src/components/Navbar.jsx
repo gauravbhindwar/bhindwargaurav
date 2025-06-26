@@ -416,36 +416,30 @@ export default function Navbar() {
     <>      <AnimatePresence>
         {scrollDirection === 'down' && (
           <motion.div 
-            className="fixed top-0 left-0 right-0 h-[2px] z-50 bg-gradient-to-r from-transparent via-purple-500/10 to-transparent pointer-events-none"
+            className="fixed top-0 left-0 right-0 h-[2px] z-50 bg-gradient-to-r from-transparent via-base-content/10 to-transparent pointer-events-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
             <motion.div
-              className="h-full bg-gradient-to-r from-pink-600 via-purple-600 to-red-600"
+              className="h-full bg-gradient-to-r from-primary via-primary to-primary"
               style={{ 
-                width: `${scrollProgress}%`, 
-                filter: 'blur(1px)' 
+                width: `${scrollProgress}%`
               }}
-              // Use initial and animate for better performance
               initial={{ width: "0%" }}
               animate={{ width: `${scrollProgress}%` }}
               transition={{ 
-                duration: 0.1, // Quick but not instant
+                duration: 0.1,
                 ease: "linear"
               }}
             />
           </motion.div>
         )}
-      </AnimatePresence><motion.nav 
+      </AnimatePresence>      <motion.nav 
         className={`fixed top-0 left-0 right-0 z-40 ${
-          isScrolled ? 'py-2 backdrop-blur-md shadow-lg shadow-purple-900/5 border-b border-purple-900/10' : 'py-4'
-        } transition-transform will-change-transform`}
-        style={{
-          backgroundColor: isScrolled ? 'var(--b1-a80)' : 'transparent',
-          transform: 'translateY(0)'
-        }}
+          isScrolled ? 'py-2 backdrop-blur-md shadow-lg border-b border-base-content/10 bg-base-100/95' : 'py-4 bg-base-100/90 backdrop-blur-sm'
+        } transition-all duration-300 will-change-transform`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ 
@@ -516,45 +510,20 @@ export default function Navbar() {
 
               <motion.button 
                 onClick={downloadResume}
-                className="relative p-2.5 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-red-600 text-white flex items-center gap-2 text-sm overflow-hidden group"
+                className="relative p-2.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-content 
+                          flex items-center gap-2 text-sm transition-all duration-200 shadow-md hover:shadow-lg"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 disabled={loading || !contactData}
               >
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-pink-600/50 via-purple-600/50 to-red-600/50 blur-xl"
-                  animate={{
-                    opacity: [0.5, 1, 0.5],
-                    scale: [1, 1.2, 1],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                
                 <div className="relative z-10 flex items-center gap-2">
                   {loading ? (
-                    <div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-primary-content/50 border-t-primary-content rounded-full animate-spin"></div>
                   ) : (
                     <FaFileDownload className="w-4 h-4" />
                   )}
                   <span className="font-medium">Resume</span>
                 </div>
-                
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
-                  animate={{
-                    x: ['-100%', '100%'],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "linear",
-                    repeatDelay: 1
-                  }}
-                />
               </motion.button>
 
               <ThemeToggleWithAnimations toggleTheme={toggleTheme} theme={theme} />
@@ -580,7 +549,8 @@ export default function Navbar() {
         </div>        <AnimatePresence>
           {isOpen && (
             <motion.div
-              className="lg:hidden fixed inset-x-0 top-[60px] backdrop-blur-md border-b border-base-200/30 shadow-lg mobile-menu"
+              className="lg:hidden fixed inset-x-0 top-[60px] bg-base-100/95 backdrop-blur-md 
+                        border-b border-base-content/10 shadow-lg mobile-menu"
               initial={{ opacity: 0, height: 0 }}
               animate={{ 
                 opacity: 1, 
@@ -601,8 +571,7 @@ export default function Navbar() {
               style={{ 
                 maxHeight: 'calc(100vh - 60px)',
                 overflowY: 'auto',
-                zIndex: 40,
-                backgroundColor: 'var(--b1-a90)'
+                zIndex: 40
               }}
             ><div className="p-4">
                 <ul className="space-y-3">
@@ -657,44 +626,20 @@ export default function Navbar() {
                     <button
                       onClick={downloadResume}
                       disabled={loading || !contactData}
-                      className="relative w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-pink-600 via-purple-600 to-red-600 text-white overflow-hidden group"
+                      className="relative w-full flex items-center justify-between px-4 py-3 rounded-xl 
+                                bg-primary hover:bg-primary/90 text-primary-content transition-all duration-200 
+                                shadow-md hover:shadow-lg"
                     >
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-pink-600/50 via-purple-600/50 to-red-600/50 blur-xl"
-                        animate={{
-                          opacity: [0.5, 1, 0.5],
-                          scale: [1, 1.2, 1],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                      />
-                      
                       <span className="relative z-10 text-lg font-medium">Download Resume</span>
                       <motion.div 
-                        className="relative z-10 p-2 bg-white/10 backdrop-blur-sm rounded-lg"
+                        className="relative z-10 p-2 bg-primary-content/10 backdrop-blur-sm rounded-lg"
                       >
                         {loading ? (
-                          <div className="w-5 h-5 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>
+                          <div className="w-5 h-5 border-2 border-primary-content/50 border-t-primary-content rounded-full animate-spin"></div>
                         ) : (
                           <FaFileDownload className="w-5 h-5" />
                         )}
                       </motion.div>
-                      
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
-                        animate={{
-                          x: ['-100%', '100%'],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "linear",
-                          repeatDelay: 1
-                        }}
-                      />
                     </button>
                   </motion.li>
                 </ul>
