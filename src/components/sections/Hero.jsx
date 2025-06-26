@@ -4,9 +4,11 @@ import { motion } from 'framer-motion'
 import { useTheme } from '../theme-provider'
 import Image from 'next/image'
 import { ReactTyped } from 'react-typed'
+import useFetch from '@/hooks/useFetch'
 
 export default function Hero() {
   const { reducedMotion } = useTheme()
+  const { data: contactData, loading: contactLoading } = useFetch('/api/contact')
   
   const transition = {
     type: reducedMotion ? "tween" : "spring",
@@ -224,7 +226,7 @@ export default function Hero() {
                   </motion.a>
                   
                   <motion.a
-                    href="/resume.pdf"
+                    href={contactData?.resumeLink || "/resume.pdf"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center px-8 py-3 bg-base-200/90 
@@ -232,11 +234,13 @@ export default function Hero() {
                               transition-all duration-300 border border-base-300/60 min-w-[160px]
                               backdrop-blur-sm
                               dark:bg-base-200/95 dark:border-base-300/90 dark:hover:bg-base-300/95
-                              dark:shadow-sm dark:hover:shadow-md"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                              dark:shadow-sm dark:hover:shadow-md
+                              disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ pointerEvents: contactLoading ? 'none' : 'auto' }}
+                    whileHover={{ scale: contactLoading ? 1 : 1.02 }}
+                    whileTap={{ scale: contactLoading ? 1 : 0.98 }}
                   >
-                    Download CV
+                    {contactLoading ? 'Loading...' : 'Download CV'}
                     <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
