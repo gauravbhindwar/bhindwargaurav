@@ -1,8 +1,8 @@
-import NextAuth from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import bcrypt from 'bcryptjs'
-import connectToDatabase from '@/lib/mongodb'
-import Admin from '@/models/Admin'
+import NextAuth from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import bcrypt from 'bcryptjs';
+import connectToDatabase from '@/lib/mongodb';
+import Admin from '@/models/Admin';
 
 export const authOptions = {
   providers: [
@@ -13,116 +13,106 @@ export const authOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        console.log('NextAuth - NEXTAUTH_SECRET available:', !!process.env.NEXTAUTH_SECRET)
-        console.log('NextAuth - Authorize called with username:', credentials?.username)
-        
         if (!credentials?.username || !credentials?.password) {
-          console.error('Auth error: Missing credentials')
-          throw new Error('Username and password are required')
+          throw new Error('Username and password are required');
         }
 
         try {
-          await connectToDatabase()
-          console.log('Database connected, looking for admin with username/email:', credentials.username)
+          await connectToDatabase();
           
+          // Find admin by username or email
           const admin = await Admin.findOne({
             $or: [
               { username: credentials.username },
               { email: credentials.username }
             ]
-          })
-
-          console.log('Admin found:', admin ? 'Yes' : 'No')
+          });
           
-          if (!admin) {
-            console.error('Auth error: No admin found with username/email:', credentials.username)
-            throw new Error('Invalid credentials')
+          if (!admin || !admin.isActive) {
+            throw new Error('Invalid credentials');
           }
 
-          if (!admin.isActive) {
-            console.error('Auth error: Admin account is inactive')
-            throw new Error('Invalid credentials')
-          }
-
-          console.log('Comparing password...')
-          const isPasswordValid = await bcrypt.compare(credentials.password, admin.password)
-          console.log('Password valid:', isPasswordValid)
+          // Verify password
+          const isPasswordValid = await bcrypt.compare(credentials.password, admin.password);
           
           if (!isPasswordValid) {
-            console.error('Auth error: Password does not match')
-            throw new Error('Invalid credentials')
+            throw new Error('Invalid credentials');
           }
 
-          // Update last login
-          await Admin.findByIdAndUpdate(admin._id, { lastLogin: new Date() })
+          // Update last login timestamp (non-blocking)
+          Admin.findByIdAndUpdate(admin._id, { 
+            lastLogin: new Date() 
+          }).catch(error => {
+            console.warn('Failed to update last login timestamp:', error.message);
+          });
           
-          console.log('Auth successful, returning user data with role:', admin.role)
+          // Return user data
           return {
             id: admin._id.toString(),
             username: admin.username,
             email: admin.email,
             role: admin.role
-          }
+          };
         } catch (error) {
-          console.error('Auth error details:', error.message)
-          throw new Error('Authentication failed')
+          console.error('Authentication error:', error.message);
+          throw new Error('Authentication failed');
         }
       }
     })
   ],
+  // Use JWT for server-side sessions
   session: {
     strategy: 'jwt',
     maxAge: 24 * 60 * 60, // 24 hours
-    updateAge: 60 * 60, // Update session every hour
   },
+  // JWT Configuration
   jwt: {
     maxAge: 24 * 60 * 60, // 24 hours
-    secret: process.env.NEXTAUTH_SECRET,
   },
   callbacks: {
+    // Add user details to JWT token
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role
-        token.username = user.username
-        token.id = user.id
-        console.log('JWT callback - User data stored in token')
+        token.id = user.id;
+        token.role = user.role;
+        token.username = user.username;
+        token.email = user.email;
       }
-      return token
+      return token;
     },
+    // Add token details to session
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id || token.sub
-        session.user.role = token.role
-        session.user.username = token.username
-        console.log('Session callback - Session created for user:', session.user.username)
-      }
-      return session
+      session.user = {
+        id: token.id,
+        role: token.role,
+        username: token.username,
+        email: token.email || session.user?.email
+      };
+      return session;
     },
+    // Handle redirects
     async redirect({ url, baseUrl }) {
-      console.log('Redirect callback - URL:', url, 'BaseURL:', baseUrl)
-      // Handle admin login redirects properly
-      if (url.includes('/admin/login') || url.includes('/admin/dashboard')) {
-        return `${baseUrl}/admin/dashboard`
+      // If the URL is relative, prepend the base URL
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
       }
-      // Allows relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url
-      return `${baseUrl}/admin/dashboard`
+      // If the URL is on the same origin, allow it
+      else if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      // Default to admin dashboard
+      return `${baseUrl}/admin/dashboard`;
     }
   },
   pages: {
     signIn: '/admin/login',
-    error: '/admin/login'
+    error: '/admin/login',
+    signOut: '/admin/login'
   },
-  secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
-  trustHost: true,
-  // Add explicit URL configuration for production
-  ...(process.env.NEXTAUTH_URL && {
-    url: process.env.NEXTAUTH_URL
-  })
+  secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true
 }
 
-const handler = NextAuth(authOptions)
-export { handler as GET, handler as POST }
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
