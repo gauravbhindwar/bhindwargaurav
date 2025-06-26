@@ -7,22 +7,36 @@ export async function middleware(request) {
 
   // Admin route protection  
   if (pathname.startsWith('/admin')) {
-    const token = await getToken({ 
-      req: request, 
-      secret: process.env.NEXTAUTH_SECRET,
-      secureCookie: process.env.NODE_ENV === 'production'
-    });
-    
-    // Block setup route completely - redirect to setup disabled page
-    if (pathname === '/admin/setup') {
-      // Just show the disabled setup page, don't redirect
-      return NextResponse.next();
-    } else if (pathname !== '/admin/login') {
-      // For all other admin routes (except login), require authentication
-      if (!token || token.role !== 'admin') {
-        const loginUrl = new URL('/admin/login', request.url);
-        loginUrl.searchParams.set('callbackUrl', pathname);
-        return NextResponse.redirect(loginUrl);
+    try {
+      const token = await getToken({ 
+        req: request, 
+        secret: process.env.NEXTAUTH_SECRET,
+        secureCookie: process.env.NODE_ENV === 'production'
+      });
+      
+      // Block setup route completely - redirect to setup disabled page
+      if (pathname === '/admin/setup') {
+        // Just show the disabled setup page, don't redirect
+        return NextResponse.next();
+      } else if (pathname !== '/admin/login') {
+        // For all other admin routes (except login), require authentication
+        if (!token || token.role !== 'admin') {
+          const loginUrl = new URL('/admin/login', request.url);
+          // Only add callbackUrl if it's not the dashboard to prevent loops
+          if (pathname !== '/admin/dashboard') {
+            loginUrl.searchParams.set('callbackUrl', pathname);
+          }
+          return NextResponse.redirect(loginUrl);
+        }
+      } else if (pathname === '/admin/login' && token?.role === 'admin') {
+        // If user is already authenticated and tries to access login, redirect to dashboard
+        return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+      }
+    } catch (error) {
+      console.error('Middleware authentication error:', error);
+      // On error, redirect to login for admin routes (except login itself)
+      if (pathname !== '/admin/login') {
+        return NextResponse.redirect(new URL('/admin/login', request.url));
       }
     }
   }

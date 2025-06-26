@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function AdminLogin() {
+// Separate component for handling search params
+function LoginForm() {
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -29,13 +30,25 @@ export default function AdminLogin() {
 
   const checkExistingSession = async () => {
     try {
+      setLoading(true)
       const session = await getSession()
-      if (session && session.user && session.user.role === 'admin') {
-        // Force redirect using window.location for better reliability
-        window.location.href = '/admin/dashboard'
+      console.log('Login page - Existing session check:', session)
+      console.log('Login page - User role:', session?.user?.role)
+      
+      if (session?.user?.role === 'admin') {
+        console.log('Login page - Admin session found, redirecting to dashboard')
+        // Use router.replace to avoid adding to history
+        router.replace('/admin/dashboard')
+        return
+      } else if (session) {
+        console.log('Login page - Session found but not admin role:', session.user?.role)
+      } else {
+        console.log('Login page - No session found')
       }
     } catch (error) {
       console.error('Session check error:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -66,7 +79,8 @@ export default function AdminLogin() {
       const result = await signIn('credentials', {
         username: formData.username,
         password: formData.password,
-        redirect: false
+        redirect: false,
+        callbackUrl: '/admin/dashboard'
       })
 
       console.log('Login result:', result)
@@ -74,15 +88,45 @@ export default function AdminLogin() {
       if (result?.error) {
         console.error('Login error:', result.error)
         setError('Invalid username or password')
+        setLoading(false)
       } else if (result?.ok) {
-        console.log('Login successful, redirecting...')
-        // Force a page refresh to ensure session is properly synchronized
-        window.location.href = '/admin/dashboard'
+        console.log('Login successful, verifying session...')
+        
+        // Add retry logic for session verification in production
+        let sessionVerified = false
+        let attempts = 0
+        const maxAttempts = 5
+        
+        while (!sessionVerified && attempts < maxAttempts) {
+          attempts++
+          await new Promise(resolve => setTimeout(resolve, 200 * attempts)) // Progressive delay
+          
+          try {
+            const session = await getSession()
+            if (session?.user?.role === 'admin') {
+              sessionVerified = true
+              console.log('Session verified, redirecting to dashboard...')
+              router.replace('/admin/dashboard')
+              return
+            }
+          } catch (sessionError) {
+            console.error(`Session check attempt ${attempts} failed:`, sessionError)
+          }
+        }
+        
+        if (!sessionVerified) {
+          console.error('Session verification failed after multiple attempts')
+          // Force redirect anyway, let the dashboard handle authentication
+          router.replace('/admin/dashboard')
+        }
+      } else {
+        console.log('Unexpected result structure:', result)
+        setError('Authentication failed. Please try again.')
+        setLoading(false)
       }
     } catch (error) {
       console.error('Login exception:', error)
       setError('An error occurred. Please try again.')
-    } finally {
       setLoading(false)
     }
   }
@@ -180,5 +224,23 @@ export default function AdminLogin() {
         </form>
       </div>
     </div>
+  )
+}
+
+// Loading component for Suspense fallback
+function LoginLoading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+    </div>
+  )
+}
+
+// Main component with Suspense boundary
+export default function AdminLogin() {
+  return (
+    <Suspense fallback={<LoginLoading />}>
+      <LoginForm />
+    </Suspense>
   )
 }

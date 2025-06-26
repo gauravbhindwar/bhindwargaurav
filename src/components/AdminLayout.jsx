@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import AdminProtection from './AdminProtection'
 import { 
   FolderOpen, 
   Code, 
@@ -49,7 +50,8 @@ export default function AdminLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 lg:flex">
+    <AdminProtection>
+      <div className="min-h-screen bg-gray-50 lg:flex">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div 
@@ -155,5 +157,6 @@ export default function AdminLayout({ children }) {
         </main>
       </div>
     </div>
+    </AdminProtection>
   )
 }
