@@ -7,7 +7,11 @@ export async function middleware(request) {
 
   // Admin route protection  
   if (pathname.startsWith('/admin')) {
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    const token = await getToken({ 
+      req: request, 
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: process.env.NODE_ENV === 'production'
+    });
     
     // Block setup route completely - redirect to setup disabled page
     if (pathname === '/admin/setup') {
@@ -16,7 +20,9 @@ export async function middleware(request) {
     } else if (pathname !== '/admin/login') {
       // For all other admin routes (except login), require authentication
       if (!token || token.role !== 'admin') {
-        return NextResponse.redirect(new URL('/admin/login', request.url));
+        const loginUrl = new URL('/admin/login', request.url);
+        loginUrl.searchParams.set('callbackUrl', pathname);
+        return NextResponse.redirect(loginUrl);
       }
     }
   }

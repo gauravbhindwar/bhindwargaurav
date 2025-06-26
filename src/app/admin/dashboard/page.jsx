@@ -1,31 +1,63 @@
-'use client'
+'use client';
 
-import { useSession, signOut } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import React, { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { 
+  FolderOpen, 
+  Code, 
+  Award, 
+  Mail, 
+  BookOpen, 
+  TrendingUp, 
+  Eye, 
+  Activity,
+  Github
+} from 'lucide-react';
 
 export default function AdminDashboard() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [stats, setStats] = useState({
     projects: 0,
     skills: 0,
     certifications: 0,
     courses: 0
-  })
-  const [loading, setLoading] = useState(true)
+  });
+  const [loading, setLoading] = useState(true);
+  const [recentActivity] = useState([
+    {
+      title: 'Updated React Portfolio Project',
+      description: 'Modified project description and added new features',
+      time: '2 hours ago',
+      type: 'project'
+    },
+    {
+      title: 'Added Next.js Skill',
+      description: 'Added Next.js to frontend development skills',
+      time: '1 day ago',
+      type: 'skill'
+    },
+    {
+      title: 'AWS Certification Added',
+      description: 'Added AWS Solutions Architect certification',
+      time: '3 days ago',
+      type: 'certification'
+    }
+  ])
 
   useEffect(() => {
     if (status === 'loading') return
     
-    if (!session) {
-      router.push('/admin/login')
+    if (!session || !session.user || session.user.role !== 'admin') {
+      // Force redirect to login if not authenticated
+      window.location.href = '/admin/login'
       return
     }
 
     fetchStats()
-  }, [session, status, router])
+  }, [session, status])
 
   const fetchStats = async () => {
     try {
@@ -54,172 +86,242 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: '/' })
-  }
-
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     )
   }
 
-  if (!session) {
-    return null
-  }
-
-  const menuItems = [
+  const statsData = [
     {
-      title: 'Projects',
-      description: 'Manage your portfolio projects',
-      count: stats.projects,
-      href: '/admin/projects',
-      color: 'bg-blue-500'
+      title: 'Total Projects',
+      value: stats.projects,
+      change: '+12% from last month',
+      icon: FolderOpen,
+      color: 'bg-blue-500',
+      href: '/admin/projects'
     },
-    {
+    { 
       title: 'Skills',
-      description: 'Manage your skills and technologies',
-      count: stats.skills,
-      href: '/admin/skills',
-      color: 'bg-green-500'
+      value: stats.skills,
+      change: '+8% from last month',
+      icon: Code,
+      color: 'bg-green-500',
+      href: '/admin/skills'
     },
     {
       title: 'Certifications',
-      description: 'Manage your certifications',
-      count: stats.certifications,
-      href: '/admin/certifications',
-      color: 'bg-purple-500'
-    },
-    {
-      title: 'Contact',
-      description: 'Manage your contact information',
-      count: '1', // There's only one contact record
-      href: '/admin/contact',
-      color: 'bg-indigo-500'
+      value: stats.certifications,
+      change: '+5% from last month',
+      icon: Award,
+      color: 'bg-purple-500',
+      href: '/admin/certifications'
     },
     {
       title: 'Courses',
-      description: 'Manage your courses',
-      count: stats.courses,
-      href: '/admin/courses',
-      color: 'bg-orange-500'
+      value: stats.courses,
+      change: '+3% from last month',
+      icon: BookOpen,
+      color: 'bg-orange-500',
+      href: '/admin/courses'
+    }
+  ]
+  
+  const quickActions = [
+    {
+      title: 'Create New Project',
+      description: 'Add a new project to your portfolio showcase',
+      icon: FolderOpen,
+      color: 'bg-blue-500',
+      href: '/admin/projects',
+      action: 'Add Project'
+    },
+    {
+      title: 'Add Skills',
+      description: 'Update your technical skills and expertise',
+      icon: Code,
+      color: 'bg-green-500',
+      href: '/admin/skills',
+      action: 'Manage Skills'
+    },
+    {
+      title: 'New Certification',
+      description: 'Add your latest certification or achievement',
+      icon: Award,
+      color: 'bg-purple-500',
+      href: '/admin/certifications',
+      action: 'Add Certification'
+    },
+    {
+      title: 'Update Contact',
+      description: 'Manage your contact information and social links',
+      icon: Mail,
+      color: 'bg-indigo-500',
+      href: '/admin/contact',
+      action: 'Update Contact'
     }
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="space-y-6">
       {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600">Welcome back, {session.user.username}</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/"
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                View Portfolio
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-              >
-                Sign Out
-              </button>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-600 mt-1">Here's what's happening with your portfolio today</p>
+          </div>
+          <div className="hidden md:flex items-center space-x-3">
+            <div className="bg-blue-50 p-3 rounded-xl">
+              <Activity className="w-6 h-6 text-blue-600" />
             </div>
           </div>
         </div>
-      </header>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {statsData.map((stat) => (
+          <Link key={stat.title} href={stat.href}>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:border-blue-300 cursor-pointer">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                  {stat.change && (
+                    <div className="flex items-center mt-2">
+                      <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+                      <span className="text-sm text-green-600 font-medium">{stat.change}</span>
+                    </div>
+                  )}
+                </div>
+                <div className={`p-3 rounded-xl ${stat.color}`}>
+                  <stat.icon className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {menuItems.map((item) => (
-              <div key={item.title} className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="p-5">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className={`w-8 h-8 rounded-md ${item.color}`}></div>
-                    </div>
-                    <div className="ml-5 w-0 flex-1">
-                      <dt className="text-sm font-medium text-gray-500 truncate">
-                        {item.title}
-                      </dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        {item.count}
-                      </dd>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Management Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {menuItems.map((item) => (
-              <Link
-                key={item.title}
-                href={item.href}
-                className="block bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="p-6">
-                  <div className="flex items-center">
-                    <div className={`w-12 h-12 rounded-lg ${item.color} flex items-center justify-center`}>
-                      <span className="text-white font-bold text-lg">{item.count}</span>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">{item.title}</h3>
-                      <p className="text-sm text-gray-500">{item.description}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Quick Actions */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">Quick Actions</h2>
+              <span className="text-sm text-gray-500">Manage your content</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {quickActions.map((action) => (
+                <Link key={action.title} href={action.href} className="group">
+                  <div className="p-4 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all">
+                    <div className="flex items-start">
+                      <div className={`p-2 rounded-lg ${action.color} mr-3`}>
+                        <action.icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 group-hover:text-blue-700">
+                          {action.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-1">{action.description}</p>
+                        <div className="mt-3">
+                          <span className="text-sm font-medium text-blue-600 group-hover:text-blue-700">
+                            {action.action} →
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="mt-4">
-                    <span className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                      Manage {item.title} →
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* Recent Activity */}
-          <div className="mt-8 bg-white shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                Quick Actions
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Link
-                  href="/admin/projects"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  Add New Project
                 </Link>
-                <Link
-                  href="/admin/skills"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
-                >
-                  Add New Skill
-                </Link>
-                <Link
-                  href="/admin/certifications"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
-                >
-                  Add Certification
-                </Link>
-              </div>
+              ))}
             </div>
           </div>
         </div>
-      </main>
+
+        {/* Recent Activity */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900">Recent Activity</h2>
+            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+              View all
+            </button>
+          </div>
+          <div className="space-y-4">
+            {recentActivity.map((item, index) => (
+              <div key={index} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                <div className="flex-shrink-0 mt-1">
+                  <div className={`w-2 h-2 rounded-full ${
+                    item.type === 'project' ? 'bg-blue-500' :
+                    item.type === 'skill' ? 'bg-green-500' :
+                    'bg-purple-500'
+                  }`}></div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900">{item.title}</p>
+                  <p className="text-xs text-gray-500 mt-1">{item.description}</p>
+                  <div className="flex items-center mt-2">
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      item.type === 'project' ? 'bg-blue-100 text-blue-800' :
+                      item.type === 'skill' ? 'bg-green-100 text-green-800' :
+                      'bg-purple-100 text-purple-800'
+                    }`}>
+                      {item.type}
+                    </span>
+                    <span className="text-xs text-gray-500 ml-2">{item.time}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Portfolio Overview */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Portfolio Overview</h2>
+            <p className="text-gray-600 mt-1">Your public portfolio performance</p>
+          </div>
+          <div className="flex space-x-3">
+            <Link
+              href="/"
+              className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Live
+            </Link>
+            <Link
+              href="https://github.com/yourusername"
+              className="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium"
+            >
+              <Github className="w-4 h-4 mr-2" />
+              GitHub
+            </Link>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="text-center p-6 bg-gray-50 rounded-xl">
+            <div className="text-2xl font-bold text-gray-900">
+              {stats.projects + stats.skills + stats.certifications}
+            </div>
+            <div className="text-sm text-gray-600 mt-1">Total Items</div>
+          </div>
+          <div className="text-center p-6 bg-green-50 rounded-xl">
+            <div className="text-2xl font-bold text-green-600">98%</div>
+            <div className="text-sm text-gray-600 mt-1">Completion Rate</div>
+          </div>
+          <div className="text-center p-6 bg-blue-50 rounded-xl">
+            <div className="text-2xl font-bold text-blue-600">Live</div>
+            <div className="text-sm text-gray-600 mt-1">Status</div>
+          </div>
+        </div>
+      </div>
     </div>
-  )
+  );
 }

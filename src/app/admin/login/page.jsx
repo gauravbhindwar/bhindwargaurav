@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect } from 'react'
 import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-function AdminLoginForm() {
+export default function AdminLogin() {
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -28,9 +28,14 @@ function AdminLoginForm() {
   }, [searchParams])
 
   const checkExistingSession = async () => {
-    const session = await getSession()
-    if (session) {
-      router.push('/admin/dashboard')
+    try {
+      const session = await getSession()
+      if (session && session.user && session.user.role === 'admin') {
+        // Force redirect using window.location for better reliability
+        window.location.href = '/admin/dashboard'
+      }
+    } catch (error) {
+      console.error('Session check error:', error)
     }
   }
 
@@ -57,18 +62,25 @@ function AdminLoginForm() {
     setError('')
 
     try {
+      console.log('Attempting login...')
       const result = await signIn('credentials', {
         username: formData.username,
         password: formData.password,
         redirect: false
       })
 
+      console.log('Login result:', result)
+
       if (result?.error) {
+        console.error('Login error:', result.error)
         setError('Invalid username or password')
       } else if (result?.ok) {
-        router.push('/admin/dashboard')
+        console.log('Login successful, redirecting...')
+        // Force a page refresh to ensure session is properly synchronized
+        window.location.href = '/admin/dashboard'
       }
     } catch (error) {
+      console.error('Login exception:', error)
       setError('An error occurred. Please try again.')
     } finally {
       setLoading(false)
@@ -168,17 +180,5 @@ function AdminLoginForm() {
         </form>
       </div>
     </div>
-  )
-}
-
-export default function AdminLogin() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    }>
-      <AdminLoginForm />
-    </Suspense>
   )
 }
