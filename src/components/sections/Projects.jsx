@@ -104,7 +104,7 @@ export default function Projects() {
           <motion.div className="max-w-6xl mx-auto">
             <div className="flex flex-col items-center justify-center gap-6 mb-16">
               <h2 className="text-5xl font-bold text-center">
-                <span className="warm-gradient">Featured Projects</span>
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Featured Projects</span>
               </h2>
               
               <Link 
@@ -148,9 +148,15 @@ export default function Projects() {
       <div className="container mx-auto px-4 relative">
         <motion.div className="max-w-6xl mx-auto">
           {/* Updated Header */}
-          <div className="flex flex-col items-center justify-center gap-6 mb-16">
+          <motion.div 
+            className="flex flex-col items-center justify-center gap-6 mb-16"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             <h2 className="text-5xl font-bold text-center">
-              <span className="warm-gradient">Featured Projects</span>
+              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Featured Projects</span>
             </h2>
             
             <Link 
@@ -160,10 +166,16 @@ export default function Projects() {
               View All Projects
               <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
             </Link>
-          </div>
+          </motion.div>
 
           {/* Projects Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div 
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             {displayedProjects.map((project, index) => (
               <ProjectCard 
                 key={project.id} // Use unique ID from data
@@ -173,13 +185,15 @@ export default function Projects() {
                 isHovered={hoveredProject === project.id} // Update hover tracking to use ID
               />
             ))}
-          </div>
+          </motion.div>
 
           {projectsData.projects.length > 3 && (
             <motion.div 
               className="text-center mt-16"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
             >
               <button 
                 onClick={() => setShowAll(!showAll)}
@@ -214,7 +228,8 @@ function ProjectCard({ project, index, setHovered, isHovered }) {
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1, duration: 0.6 }}
       onHoverStart={() => setHovered(project.id)} // Update to use ID
       onHoverEnd={() => setHovered(null)}
       className="group relative bg-base-200 rounded-2xl overflow-hidden"

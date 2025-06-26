@@ -122,7 +122,9 @@ export default function ViewAllProjects() {
           {/* Header with back button */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
             className="mb-12"
           >
             <Link 
@@ -139,7 +141,13 @@ export default function ViewAllProjects() {
           </motion.div>
 
           {/* Projects Grid */}
-          <div className="grid md:grid-cols-2 gap-8">
+          <motion.div 
+            className="grid md:grid-cols-2 gap-8"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             {projectsData.projects.map((project, index) => (
               <ProjectCard
                 key={project.id}
@@ -150,7 +158,7 @@ export default function ViewAllProjects() {
                 setHovered={setHoveredProject}
               />
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
 
@@ -171,8 +179,9 @@ const ProjectCard = ({ project, index, setSelected, isHovered, setHovered }) => 
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1, duration: 0.6 }}
       onHoverStart={() => setHovered(project.id)}
       onHoverEnd={() => setHovered(null)}
       className="bg-base-200 rounded-xl overflow-hidden group hover:shadow-xl transition-all duration-300"

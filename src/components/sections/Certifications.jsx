@@ -19,11 +19,18 @@ export default function Certifications() {
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
             className="max-w-7xl mx-auto"
-          >
-            <h2 className="text-5xl font-bold text-center mb-16">
-              <span className="warm-gradient">Certifications & Achievements</span>
-            </h2>
+          >        <motion.h2 
+          className="text-5xl font-bold text-center mb-16"
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Certifications & Achievements</span>
+        </motion.h2>
 
             <CertificationsSkeleton />
           </motion.div>
@@ -52,19 +59,29 @@ export default function Certifications() {
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
           className="max-w-7xl mx-auto"
         >
-          <h2 className="text-5xl font-bold text-center mb-16">
-            <span className="warm-gradient">Certifications & Achievements</span>
-          </h2>
+          <motion.h2 
+            className="text-5xl font-bold text-center mb-16"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              Certifications & Achievements
+            </span>
+          </motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-            {certificationsData.certifications.map((cert, index) => (
-              <motion.div
+            {certificationsData.certifications.map((cert, index) => (                <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.6 }}
                 className="group"
               >
                 <div className="h-full bg-gradient-to-br from-base-200/80 to-base-300/80 backdrop-blur-lg rounded-3xl p-8 

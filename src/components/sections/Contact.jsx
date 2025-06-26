@@ -4,7 +4,6 @@ import { useState, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { FaGithub, FaLinkedin, FaEnvelope, FaPhone, FaPaperPlane, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa'
 import useFetch from '@/hooks/useFetch'
-import styles from './Contact.module.css'
 import emailjs from '@emailjs/browser'
 
 const socialIcons = {
@@ -116,13 +115,15 @@ export default function Contact() {
 
   if (loading) {
     return (
-      <section id="contact" className={`py-20 ${styles.contactSection}`}>
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.05]" />
-        <div className={styles.gradientBg} />
-        <div className="container mx-auto px-4">
+      <section id="contact" className="py-24 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-base-200/50 to-base-100/50 backdrop-blur-sm"></div>
+        
+        <div className="container mx-auto px-4 relative">
           <div className="max-w-6xl mx-auto">
-            <div className={styles.contactCard}>
-              <div className="p-8 animate-pulse">
+            <div className="bg-gradient-to-br from-base-200/80 to-base-300/80 backdrop-blur-lg rounded-3xl p-8 
+                          border border-base-content/5 hover:border-primary/20 transition-all duration-300
+                          hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.1)]">
+              <div className="animate-pulse">
                 <div className="h-12 bg-base-300 rounded-lg w-1/3 mx-auto mb-12"></div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -149,15 +150,17 @@ export default function Contact() {
 
   if (error || !contactData) {
     return (
-      <section id="contact" className={`py-20 ${styles.contactSection}`}>
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.05]" />
-        <div className={styles.gradientBg} />
-        <div className="container mx-auto px-4">
+      <section id="contact" className="py-24 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-base-200/50 to-base-100/50 backdrop-blur-sm"></div>
+        
+        <div className="container mx-auto px-4 relative">
           <div className="flex justify-center items-center min-h-[300px]">
-            <div className={styles.contactCard}>
-              <div className="p-8 text-center">
+            <div className="bg-gradient-to-br from-base-200/80 to-base-300/80 backdrop-blur-lg rounded-3xl p-8 
+                          border border-base-content/5 hover:border-primary/20 transition-all duration-300
+                          hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.1)]">
+              <div className="text-center">
                 <h2 className="text-2xl font-bold text-error mb-4">Unable to load contact information</h2>
-                <p>Please try again later or contact me directly via email.</p>
+                <p className="text-base-content/70">Please try again later or contact me directly via email.</p>
               </div>
             </div>
           </div>
@@ -172,15 +175,15 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className={`py-20 ${styles.contactSection}`}>
+    <section id="contact" className="py-24 relative">
       {/* Background elements */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-[0.07]" />
-      <div className={styles.gradientBg} />
+      <div className="absolute inset-0 bg-gradient-to-b from-base-200/50 to-base-100/50 backdrop-blur-sm"></div>
+      
+      {/* Animated background pattern */}
       <motion.div 
-        className="absolute inset-0"
+        className="absolute inset-0 opacity-[0.03]"
         animate={{
           backgroundPosition: ['0px 0px', '100px 100px'],
-          opacity: [0.07, 0.12]
         }}
         transition={{
           duration: 20,
@@ -193,41 +196,7 @@ export default function Contact() {
         }}
       />
       
-      {/* Animated particles in background */}
-      <motion.div className={styles.particles}>
-        {[...Array(15)].map((_, index) => (
-          <motion.div
-            key={index}
-            className={styles.particle}
-            initial={{
-              x: Math.random() * 100 - 50 + "%",
-              y: Math.random() * 100 + "%",
-              scale: Math.random() * 0.5 + 0.5,
-              opacity: Math.random() * 0.3 + 0.1
-            }}
-            animate={{
-              x: [
-                Math.random() * 100 - 50 + "%", 
-                Math.random() * 100 - 50 + "%", 
-                Math.random() * 100 - 50 + "%"
-              ],
-              y: [
-                Math.random() * 100 + "%", 
-                Math.random() * 100 + "%", 
-                Math.random() * 100 + "%"
-              ],
-              opacity: [0.1, Math.random() * 0.3 + 0.1, 0.1]
-            }}
-            transition={{
-              duration: Math.random() * 20 + 10,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-        ))}
-      </motion.div>
-      
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -235,15 +204,17 @@ export default function Contact() {
           viewport={{ once: true, margin: "-100px" }}
           className="max-w-6xl mx-auto"
         >
-          <div className={styles.contactCard}>
+          <div className="bg-gradient-to-br from-base-200/80 to-base-300/80 backdrop-blur-lg rounded-3xl p-12 
+                        border border-base-content/5 hover:border-primary/20 transition-all duration-300
+                        hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.1)]">
             <motion.h2 
-              className={styles.sectionTitle}
+              className="text-5xl font-bold text-center mb-16"
               initial={{ opacity: 0, y: -20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              <span className={styles.gradientText}>Let&apos;s Connect</span>
+              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Let&apos;s Connect</span>
             </motion.h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -255,13 +226,13 @@ export default function Contact() {
                 viewport={{ once: true }}
                 className="space-y-8"
               >
-                <div className={styles.introText}>
-                  <p>
+                <div className="relative">
+                  <p className="text-lg text-base-content/80 leading-relaxed mb-6">
                     I&apos;m always interested in hearing about new projects, opportunities, 
                     or just connecting with fellow developers and tech enthusiasts.
                   </p>
                   <motion.div 
-                    className={styles.divider}
+                    className="h-1 bg-gradient-to-r from-primary to-secondary rounded-full"
                     initial={{ width: "30%" }}
                     whileInView={{ width: "80%" }}
                     transition={{ duration: 1, delay: 0.5 }}
@@ -271,42 +242,44 @@ export default function Contact() {
 
                 <div className="space-y-5">
                   <motion.div 
-                    className={styles.contactItem}
+                    className="group flex items-center gap-4 p-4 rounded-2xl bg-base-100/50 border border-base-content/5 
+                             hover:border-primary/20 hover:bg-base-100/80 transition-all duration-300 hover:shadow-lg"
                     whileHover={{ x: 5 }}
                   >
-                    <div className={`${styles.iconWrapper} ${styles.iconWrapperPrimary}`}>
-                      <FaEnvelope className="w-5 h-5" />
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <FaEnvelope className="w-5 h-5 text-primary" />
                     </div>
-                    <a href={`mailto:${contactData.email}`} className={styles.contactText}>
+                    <a href={`mailto:${contactData.email}`} className="text-lg font-medium hover:text-primary transition-colors">
                       {contactData.email}
                     </a>
                   </motion.div>
                   
                   {contactData.phone && (
                     <motion.div 
-                      className={styles.contactItem}
+                      className="group flex items-center gap-4 p-4 rounded-2xl bg-base-100/50 border border-base-content/5 
+                               hover:border-secondary/20 hover:bg-base-100/80 transition-all duration-300 hover:shadow-lg"
                       whileHover={{ x: 5 }}
                     >
-                      <div className={`${styles.iconWrapper} ${styles.iconWrapperSecondary}`}>
-                        <FaPhone className="w-5 h-5" />
+                      <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
+                        <FaPhone className="w-5 h-5 text-secondary" />
                       </div>
-                      <span className={styles.contactText}>{contactData.phone}</span>
+                      <span className="text-lg font-medium">{contactData.phone}</span>
                     </motion.div>
                   )}
                 </div>
 
-                <div className={styles.socialSection}>
+                <div className="mt-8">
                   <motion.h3 
-                    className={styles.socialTitle}
+                    className="text-xl font-bold mb-4 flex items-center"
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.6 }}
                     viewport={{ once: true }}
                   >
-                    Connect with me
+                    <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Connect with me</span>
                   </motion.h3>
                   
-                  <div className={styles.socialButtons}>
+                  <div className="flex gap-4">
                     {Object.entries(contactData.social).map(([platform, url], index) => {
                       const Icon = socialIcons[platform]
                       return (
@@ -315,7 +288,9 @@ export default function Contact() {
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={styles.socialButton}
+                          className="w-14 h-14 rounded-2xl bg-base-100/50 border border-base-content/5 flex items-center justify-center
+                                   hover:border-primary/20 hover:bg-primary/10 hover:scale-110 transition-all duration-300
+                                   hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.2)]"
                           initial={{ opacity: 0, scale: 0.8, y: 20 }}
                           whileInView={{ 
                             opacity: 1, 
@@ -328,14 +303,10 @@ export default function Contact() {
                               damping: 20
                             } 
                           }}
-                          whileHover={{ 
-                            scale: 1.1,
-                            boxShadow: "0 5px 15px rgba(0, 0, 0, 0.2)"
-                          }}
                           whileTap={{ scale: 0.95 }}
                           viewport={{ once: true }}
                         >
-                          {Icon && <Icon className="w-6 h-6" />}
+                          {Icon && <Icon className="w-6 h-6 text-primary" />}
                         </motion.a>
                       )
                     })}
@@ -343,38 +314,42 @@ export default function Contact() {
                 </div>
                 
                 <motion.div 
-                  className={styles.quoteContainer}
+                  className="bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl p-6 border border-primary/10 relative overflow-hidden"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.8 }}
                   viewport={{ once: true }}
                 >
-                  <div className={styles.quoteMark}>"</div>
-                  <blockquote className={styles.quote}>
+                  <div className="absolute top-2 left-4 text-6xl text-primary/20 font-serif leading-none">"</div>
+                  <blockquote className="text-base-content/80 italic text-lg leading-relaxed pt-4">
                     Great things happen when we collaborate. 
                     Let's build something amazing together!
                   </blockquote>
-                  <div className={styles.quoteAuthor}>– {contactData.name || 'Gaurav'}</div>
+                  <div className="text-right mt-4 font-medium text-primary">– {contactData.name || 'Gaurav'}</div>
                 </motion.div>
               </motion.div>
 
               {/* Contact Form Side */}
               <div ref={formRef}>
                 <motion.div
-                  initial={{x: 20 }}
-                  animate={isFormInView ? { opacity: 1, x: 0 } : {}}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.7, delay: 0.4 }}
-                  className={styles.formContainer}
+                  viewport={{ once: true, margin: "-100px" }}
+                  className="bg-base-100/70 backdrop-blur-sm rounded-2xl p-8 border border-base-content/20 shadow-xl"
                 >
-                  <h3 className={styles.formTitle}>Send me a message</h3>
+                  <h3 className="text-2xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    Send me a message
+                  </h3>
                   
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="flex items-center justify-between text-sm font-medium text-base-content">
                         <span>Your Name</span>
                         {fieldErrors.name && (
-                          <span className={styles.errorText}>
-                            <FaExclamationCircle className="inline mr-1" />
+                          <span className="text-error text-xs flex items-center gap-1">
+                            <FaExclamationCircle />
                             {fieldErrors.name}
                           </span>
                         )}
@@ -389,18 +364,21 @@ export default function Contact() {
                           value={formState.name}
                           onChange={handleChange}
                           placeholder="John Doe"
-                          className={`${styles.formInput} ${fieldErrors.name ? styles.inputError : ''}`}
+                          className={`w-full px-4 py-3 rounded-xl bg-base-200 border-2 transition-all duration-300
+                                   focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary 
+                                   hover:bg-base-300 text-base-content placeholder-base-content/50
+                                   ${fieldErrors.name ? 'border-error focus:ring-error focus:border-error' : 'border-base-content/20'}`}
                           disabled={formStatus === 'submitting'}
                         />
                       </motion.div>
                     </div>
                     
-                    <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>
+                    <div className="space-y-2">
+                      <label className="flex items-center justify-between text-sm font-medium text-base-content">
                         <span>Email</span>
                         {fieldErrors.email && (
-                          <span className={styles.errorText}>
-                            <FaExclamationCircle className="inline mr-1" />
+                          <span className="text-error text-xs flex items-center gap-1">
+                            <FaExclamationCircle />
                             {fieldErrors.email}
                           </span>
                         )}
@@ -415,18 +393,21 @@ export default function Contact() {
                           value={formState.email}
                           onChange={handleChange}
                           placeholder="johndoe@example.com"
-                          className={`${styles.formInput} ${fieldErrors.email ? styles.inputError : ''}`}
+                          className={`w-full px-4 py-3 rounded-xl bg-base-200 border-2 transition-all duration-300
+                                   focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary 
+                                   hover:bg-base-300 text-base-content placeholder-base-content/50
+                                   ${fieldErrors.email ? 'border-error focus:ring-error focus:border-error' : 'border-base-content/20'}`}
                           disabled={formStatus === 'submitting'}
                         />
                       </motion.div>
                     </div>
                     
-                    <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>
+                    <div className="space-y-2">
+                      <label className="flex items-center justify-between text-sm font-medium text-base-content">
                         <span>Message</span>
                         {fieldErrors.message && (
-                          <span className={styles.errorText}>
-                            <FaExclamationCircle className="inline mr-1" />
+                          <span className="text-error text-xs flex items-center gap-1">
+                            <FaExclamationCircle />
                             {fieldErrors.message}
                           </span>
                         )}
@@ -440,7 +421,10 @@ export default function Contact() {
                           value={formState.message}
                           onChange={handleChange}
                           placeholder="I'd like to discuss a project..."
-                          className={`${styles.formTextarea} ${fieldErrors.message ? styles.inputError : ''}`}
+                          className={`w-full px-4 py-3 rounded-xl bg-base-200 border-2 transition-all duration-300
+                                   focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary 
+                                   hover:bg-base-300 resize-none text-base-content placeholder-base-content/50
+                                   ${fieldErrors.message ? 'border-error focus:ring-error focus:border-error' : 'border-base-content/20'}`}
                           disabled={formStatus === 'submitting'}
                           rows={6}
                         ></textarea>
@@ -449,7 +433,7 @@ export default function Contact() {
                     
                     {formStatus === 'error' && !Object.keys(fieldErrors).length && (
                       <motion.div 
-                        className={styles.errorAlert}
+                        className="flex items-center gap-2 p-4 rounded-xl bg-error/10 border border-error/30 text-error"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                       >
@@ -460,7 +444,7 @@ export default function Contact() {
                     
                     {formStatus === 'success' && (
                       <motion.div 
-                        className={styles.successAlert}
+                        className="flex items-center gap-2 p-4 rounded-xl bg-success/10 border border-success/30 text-success"
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                       >
@@ -471,27 +455,33 @@ export default function Contact() {
                     
                     <motion.button
                       type="submit"
-                      className={styles.submitButton}
+                      className="w-full px-6 py-4 rounded-xl bg-gradient-to-r from-primary to-secondary text-primary-content 
+                               font-bold text-lg hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.4)] 
+                               hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed
+                               disabled:hover:scale-100 disabled:hover:shadow-none
+                               flex items-center justify-center gap-3 border-2 border-primary/20"
                       disabled={formStatus === 'submitting'}
-                      whileHover={{ scale: 1.03, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.2)" }}
-                      whileTap={{ scale: 0.97 }}
+                      whileHover={formStatus !== 'submitting' ? { scale: 1.02 } : {}}
+                      whileTap={formStatus !== 'submitting' ? { scale: 0.98 } : {}}
                     >
                       {formStatus === 'submitting' ? (
-                        <div className={styles.spinnerContainer}>
-                          <div className={styles.spinner} />
+                        <div className="flex items-center gap-3">
+                          <div className="w-5 h-5 border-2 border-primary-content/30 border-t-primary-content rounded-full animate-spin" />
                           <span>Sending...</span>
                         </div>
                       ) : (
                         <>
-                          <FaPaperPlane className="mr-2" />
+                          <FaPaperPlane className="w-5 h-5" />
                           Send Message
                         </>
                       )}
                     </motion.button>
                   </form>
                   
-                  <div className={styles.formFooter}>
-                    <p>Your data is handled securely and I'll never share it with third parties.</p>
+                  <div className="mt-6 pt-4 border-t border-base-content/10 text-center">
+                    <p className="text-sm text-base-content/60">
+                      🔒 Your data is handled securely and I'll never share it with third parties.
+                    </p>
                   </div>
                 </motion.div>
               </div>

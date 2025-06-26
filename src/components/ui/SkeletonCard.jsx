@@ -1,8 +1,14 @@
 import { motion } from 'framer-motion';
 
-const SkeletonCard = () => {
+const SkeletonCard = ({ index = 0 }) => {
   return (
-    <div className="bg-base-200 rounded-2xl overflow-hidden animate-pulse">
+    <motion.div 
+      className="bg-base-200 rounded-2xl overflow-hidden animate-pulse"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1, duration: 0.6 }}
+    >
       {/* Image skeleton */}
       <div className="h-48 bg-base-300"></div>
       
@@ -33,25 +39,44 @@ const SkeletonCard = () => {
           <div className="h-9 bg-base-300 rounded-lg w-1/4"></div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
 export const ProjectsSkeleton = () => {
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <motion.div 
+      className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+    >
       {[...Array(6)].map((_, i) => (
-        <SkeletonCard key={i} />
+        <SkeletonCard key={i} index={i} />
       ))}
-    </div>
+    </motion.div>
   );
 };
 
 export const SkillsSkeleton = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+    <motion.div 
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+    >
       {[...Array(4)].map((_, i) => (
-        <div key={i} className="h-[400px] bg-base-200 rounded-3xl p-8 animate-pulse">
+        <motion.div 
+          key={i} 
+          className="h-[400px] bg-base-200 rounded-3xl p-8 animate-pulse"
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: i * 0.1, duration: 0.6 }}
+        >
           <div className="h-8 bg-base-300 rounded-lg w-1/2 mb-8"></div>
           
           {/* Add Frontend/Backend sections for the second card (Web Development) */}
@@ -78,17 +103,30 @@ export const SkillsSkeleton = () => {
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 };
 
 export const CertificationsSkeleton = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+    <motion.div 
+      className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+    >
       {[...Array(6)].map((_, i) => (
-        <div key={i} className="h-72 bg-base-200 rounded-3xl p-8 animate-pulse">
+        <motion.div 
+          key={i} 
+          className="h-72 bg-base-200 rounded-3xl p-8 animate-pulse"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: i * 0.1, duration: 0.6 }}
+        >
           <div className="flex justify-between mb-6">
             <div className="w-12 h-12 rounded-xl bg-base-300"></div>
             <div className="w-24 h-10 rounded-full bg-base-300"></div>
@@ -101,9 +139,9 @@ export const CertificationsSkeleton = () => {
               <div key={j} className="h-6 w-16 bg-base-300 rounded-full"></div>
             ))}
           </div>
-        </div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 };
 

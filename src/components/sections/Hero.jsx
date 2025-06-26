@@ -1,48 +1,12 @@
 'use client'
 
-import { motion, useAnimationFrame } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useTheme } from '../theme-provider'
 import Image from 'next/image'
 import { ReactTyped } from 'react-typed'
-import AnimatedLetters from './AnimatedLetters'
-import styles from './Hero.module.css'
-import { useRef, useState, useEffect } from 'react'
-// Add font imports for calligraphy and code
-import { Kalam } from 'next/font/google'
-import { Inter, Space_Mono, Fira_Code } from 'next/font/google'
-
-// Initialize the fonts
-const calligraphyFont = Kalam({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  display: 'swap',
-  variable: '--font-calligraphy'
-})
-
-const interFont = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter'
-})
-
-const spaceMono = Space_Mono({
-  subsets: ['latin'],
-  weight: ['400', '700'],
-  display: 'swap',
-  variable: '--font-space-mono'
-})
-
-const firaCode = Fira_Code({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-fira-code'
-})
 
 export default function Hero() {
   const { reducedMotion } = useTheme()
-  const curveCanvasRef = useRef(null)
-  const codeElementsRef = useRef([])
-  const [time, setTime] = useState(0)
   
   const transition = {
     type: reducedMotion ? "tween" : "spring",
@@ -50,292 +14,56 @@ export default function Hero() {
     stiffness: 260,
     damping: 20
   }
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    const codeSnippets = [
-      '<React.Suspense fallback={<Loader />}>', 'useState<T>(initialState)', 'useEffect(() => {}, [])',
-      'npm run build && npm start', 'git checkout -b feature/new-component', 'docker-compose up -d',
-      'const { data, error } = await axios.get()', 'export default function Component()',
-      'import React, { useContext } from "react"', '<motion.div animate={{ opacity: [0, 1] }}',
-      'async/await', 'try { ... } catch (err) { ... }', 'Promise.all([fetch1, fetch2])',
-      '.reduce((acc, val) => ({ ...acc, [val.id]: val }), {})',
-      '.filter(Boolean).map(item => <Item key={item.id} {...item} />)',
-      'React.lazy(() => import("./Component"))',
-      'useCallback((e: React.MouseEvent) => handleClick(e), [deps])', 
-      'useMemo(() => complexComputation(a, b), [a, b])',
-      '/* FIXME: Optimize rendering */','// TODO: Add error handling',
-      '/** @param {string} id - The unique identifier */', 'Record<string, unknown>',
-      '@tailwind base; @tailwind components;', 'npx create-next-app --typescript',
-      'export interface Props extends HTMLAttributes<HTMLDivElement> {}',
-      '.then(res => res.json()).catch(handleError)', 'new Promise((resolve, reject) => {})',
-      'Object.entries(data).map(([key, value]) => ({ key, value }))'
-    ];
-    
-    codeElementsRef.current = Array(30).fill(0).map((_, i) => ({
-      text: codeSnippets[Math.floor(Math.random() * codeSnippets.length)],
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      vx: (Math.random() - 0.5) * 1.5,
-      vy: (Math.random() - 0.5) * 1.5,
-      size: Math.random() * 14 + 10,
-      color: `hsla(${Math.random() * 360}, 70%, 70%, ${Math.random() * 0.3 + 0.1})`,
-      rotation: Math.random() * 360,
-      lifespan: Math.random() * 20 + 10,
-      age: 0
-    }));
-  }, []);
-
-  useAnimationFrame((t) => {
-    const elapsed = t / 1000;
-    setTime(elapsed);
-    
-    codeElementsRef.current = codeElementsRef.current.map(element => {
-      let x = element.x + element.vx;
-      let y = element.y + element.vy;
-      let age = element.age !== undefined ? element.age + 0.05 : 0;
-      
-      if (x < 0 || x > window.innerWidth) {
-        element.vx *= -0.9;
-        x = Math.max(0, Math.min(window.innerWidth, x));
-      }
-      if (y < 0 || y > window.innerHeight) {
-        element.vy *= -0.9;
-        y = Math.max(0, Math.min(window.innerHeight, y));
-      }
-      
-      element.vx += (Math.random() - 0.5) * 0.05;
-      element.vy += (Math.random() - 0.5) * 0.05;
-      
-      const maxSpeed = 2;
-      const speed = Math.sqrt(element.vx * element.vx + element.vy * element.vy);
-      if (speed > maxSpeed) {
-        element.vx = (element.vx / speed) * maxSpeed;
-        element.vy = (element.vy / speed) * maxSpeed;
-      }
-      
-      if (element.lifespan && age >= element.lifespan) {
-        const codeSnippets = codeElementsRef.current.map(e => e.text);
-        return {
-          text: codeSnippets[Math.floor(Math.random() * codeSnippets.length)],
-          x: Math.random() * window.innerWidth,
-          y: Math.random() * window.innerHeight,
-          vx: (Math.random() - 0.5) * 1.5,
-          vy: (Math.random() - 0.5) * 1.5,
-          size: Math.random() * 14 + 10,
-          color: `hsla(${Math.random() * 360}, 70%, 70%, ${Math.random() * 0.3 + 0.1})`,
-          rotation: Math.random() * 360,
-          lifespan: Math.random() * 20 + 10,
-          age: 0
-        };
-      }
-      
-      const opacity = element.lifespan ? 
-        (age / element.lifespan < 0.2 ? age / element.lifespan * 5 : 
-        age / element.lifespan > 0.8 ? (1 - age / element.lifespan) * 5 : 
-        1) : 1;
-      
-      return {
-        ...element,
-        x,
-        y,
-        age,
-        opacity,
-        rotation: element.rotation + 0.2,
-        color: element.color.replace(/[\d.]+\)$/, `${opacity * 0.3})`),
-      };
-    });
-
-    if (curveCanvasRef.current) {
-      const canvas = curveCanvasRef.current;
-      const ctx = canvas.getContext('2d');
-      
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
-      
-      ctx.clearRect(0, 0, rect.width, rect.height);
-      
-      const drawParametricCurve = (fn, color, width, opacity, segments) => {
-        ctx.beginPath();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = width;
-        ctx.globalAlpha = opacity;
-        
-        for (let i = 0; i <= segments; i++) {
-          const t = i / segments;
-          const [x, y] = fn(t, elapsed);
-          
-          if (i === 0) {
-            ctx.moveTo(x, y);
-          } else {
-            ctx.lineTo(x, y);
-          }
-        }
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-      };
-      
-      const a = 1, b = 1;
-      const m1 = 6 + Math.sin(elapsed * 0.1) * 3;
-      const n1 = 3 + Math.cos(elapsed * 0.2) * 2;
-      const n2 = 1 + Math.sin(elapsed * 0.3);
-      const n3 = 1 + Math.cos(elapsed * 0.2);
-      
-      const superformula = (t, time) => {
-        const phi = t * Math.PI * 2;
-        
-        const part1 = Math.pow(Math.abs(Math.cos(m1 * phi / 4) / a), n2);
-        const part2 = Math.pow(Math.abs(Math.sin(m1 * phi / 4) / b), n3);
-        const r = Math.pow(part1 + part2, -1/n1);
-        
-        const scale = Math.min(rect.width, rect.height) * 0.35;
-        const x = rect.width / 2 + scale * r * Math.cos(phi);
-        const y = rect.height / 2 + scale * r * Math.sin(phi);
-        
-        return [x, y];
-      };
-      
-      const lissajous = (t, time) => {
-        const A = Math.min(rect.width, rect.height) * 0.25;
-        const a = 3 + Math.sin(time * 0.2);
-        const b = 2 + Math.cos(time * 0.3);
-        const delta = time * 0.5;
-        
-        const x = rect.width / 2 + A * Math.sin(a * t * Math.PI * 2 + delta);
-        const y = rect.height / 2 + A * Math.sin(b * t * Math.PI * 2);
-        
-        return [x, y];
-      };
-      
-      const spiral = (t, time) => {
-        const scale = Math.min(rect.width, rect.height) * 0.4;
-        const spiralTightness = 10 + Math.sin(time * 0.3) * 5;
-        const r = (t * scale) / spiralTightness;
-        const theta = t * Math.PI * 20 + time;
-        
-        const x = rect.width / 2 + r * Math.cos(theta);
-        const y = rect.height / 2 + r * Math.sin(theta);
-        
-        return [x, y];
-      };
-      
-      const butterfly = (t, time) => {
-        const scale = Math.min(rect.width, rect.height) * 0.2;
-        const theta = t * Math.PI * 24;
-        const exp = Math.exp(Math.cos(theta)) - 2 * Math.cos(4 * theta) + Math.pow(Math.sin(theta / 12), 5);
-        
-        const factor = 1 + 0.2 * Math.sin(time * 0.5);
-        
-        const x = rect.width / 2 + scale * factor * Math.sin(theta) * exp;
-        const y = rect.height / 2 + scale * factor * Math.cos(theta) * exp;
-        
-        return [x, y];
-      };
-      
-      const heart = (t, time) => {
-        const scale = Math.min(rect.width, rect.height) * 0.15;
-        const theta = t * Math.PI * 2;
-        
-        const pulse = 1 + Math.sin(time * 2) * 0.1;
-        const x = rect.width / 2 + scale * pulse * 16 * Math.pow(Math.sin(theta), 3);
-        const y = rect.height / 2 - scale * pulse * (13 * Math.cos(theta) - 5 * Math.cos(2 * theta) - 2 * Math.cos(3 * theta) - Math.cos(4 * theta));
-        
-        return [x, y];
-      };
-      
-      drawParametricCurve(superformula, 'hsla(var(--p)/0.15)', 2, 0.6, 500);
-      drawParametricCurve(lissajous, 'hsla(var(--s)/0.1)', 1.5, 0.4, 300);
-      drawParametricCurve(spiral, 'hsla(var(--a)/0.08)', 1, 0.3, 400);
-      
-      ctx.globalCompositeOperation = 'lighten';
-      drawParametricCurve(butterfly, 'hsla(var(--in)/0.1)', 1, 0.3, 300);
-      drawParametricCurve(heart, 'hsla(var(--er)/0.1)', 1, 0.25, 200);
-      
-      ctx.shadowColor = 'hsla(var(--p)/0.5)';
-      ctx.shadowBlur = 5;
-      drawParametricCurve(
-        (t, time) => {
-          const [x, y] = superformula(t, time);
-          return [x + Math.sin(time) * 5, y + Math.cos(time) * 5];
-        },
-        'hsla(var(--ac)/0.2)', 2, 0.15, 300
-      );
-      ctx.shadowBlur = 0;
-      ctx.globalCompositeOperation = 'source-over';
-    }
-  });
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (curveCanvasRef.current) {
-        curveCanvasRef.current.width = window.innerWidth;
-        curveCanvasRef.current.height = window.innerHeight;
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
   return (
-    <section id="home" className={`${styles.heroSection} ${calligraphyFont.variable} relative min-h-[calc(100vh-4rem)]`}>
-      {/* Background elements */}
-      <canvas 
-        ref={curveCanvasRef} 
-        className="absolute inset-0"
-        style={{ width: '100%', height: '100%' }}
-      />
-      
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Code particle elements */}
-        {codeElementsRef.current.map((element, index) => (
-          <div
-            key={index}
-            className="absolute font-mono text-base-content/30 whitespace-nowrap"
-            style={{
-              left: element.x,
-              top: element.y,
-              fontSize: `${element.size}px`,
-              color: element.color,
-              transform: `rotate(${element.rotation}deg)`,
-              transition: 'transform 0.5s ease-out'
-            }}
-          >
-            {element.text}
-          </div>
-        ))}
-      </div>
-      
-      {/* Grid and gradient background */}
+    <section id="home" className="relative min-h-screen bg-gradient-to-br from-base-100 via-base-200 to-base-300">
+      {/* Enhanced background that's vibrant in dark theme */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.05]" /> {/* Increased opacity */}
-        <div className={styles.gradientBg} />
+        {/* Primary gradient overlay - significantly more vibrant in dark mode */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-secondary/8 to-accent/12 
+                        dark:from-primary/35 dark:via-secondary/20 dark:to-accent/30" />
+        
+        {/* Animated dot pattern - more prominent in dark mode */}
         <motion.div 
-          className="absolute inset-0"
+          className="absolute inset-0 opacity-20 dark:opacity-60"
           animate={{
             backgroundPosition: ['0px 0px', '100px 100px'],
-            opacity: [0.15, 0.25] // Increased opacity values for better visibility
           }}
           transition={{
-            duration: 20,
+            duration: 30,
             repeat: Infinity,
             repeatType: 'reverse'
           }}
           style={{
-            backgroundImage: 'radial-gradient(circle, hsl(var(--p)) 1.5px, transparent 1.5px)', // Larger dots
-            backgroundSize: '50px 50px'
+            backgroundImage: 'radial-gradient(circle, hsl(var(--p) / 0.15) 1.5px, transparent 1.5px)',
+            backgroundSize: '40px 40px'
           }}
-        />      </div>      {/* Main content */}
-      <div className={`container px-4 sm:px-6 relative z-10 py-4 ${calligraphyFont.variable} ${interFont.variable} ${spaceMono.variable} ${firaCode.variable}`}>
-        {/* Hero card with glassmorphism effect */}
+        />
+        
+        {/* Additional vibrant overlay - much more vibrant for dark theme */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-success/8 via-transparent to-warning/8 
+                        dark:from-success/25 dark:via-info/15 dark:to-warning/25" />
+        
+        {/* Theme-adaptive enhancement layer */}
+        <div className="absolute inset-0 bg-gradient-to-t from-base-100/20 via-transparent to-base-100/10 
+                        dark:from-base-200/15 dark:via-transparent dark:to-base-300/15" />
+      </div>
+      
+      {/* Main content - shifted down with more spacing */}
+      <div className="container mx-auto px-4 sm:px-6 relative z-10 py-16 md:py-20">
+        {/* Enhanced hero card with proper theme support for both light and dark */}
         <motion.div 
-          className={styles.heroCard}
-          initial={{ opacity: 0, y: 30 }}
+          className="bg-base-100/95 backdrop-blur-lg rounded-3xl border border-base-300/70 
+                     p-10 lg:p-16 xl:p-20 shadow-2xl max-w-8xl mx-auto hover:shadow-3xl 
+                     transition-all duration-500 backdrop-saturate-150 min-h-[80vh]
+                     ring-1 ring-base-300/30
+                     dark:bg-base-100/90 dark:border-base-300/80 dark:shadow-2xl 
+                     dark:hover:shadow-primary/40 dark:hover:shadow-3xl
+                     dark:backdrop-blur-xl dark:backdrop-saturate-200
+                     dark:ring-1 dark:ring-primary/20"
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.8 }}
+          whileHover={{ y: -8 }}
         ><div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Text content - takes more space on larger screens */}
             <motion.div
@@ -344,531 +72,269 @@ export default function Hero() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              {/* Enhanced greeting with calligraphic styling */}
-              <div className={styles.greetingContainer}>
+              {/* Enhanced greeting with vibrant colors and larger size */}
+              <div className="flex justify-center items-center lg:justify-start">
                 <motion.div 
-                  className={styles.greeting}
+                  className="inline-flex items-center text-xl font-bold text-base-content 
+                            bg-gradient-to-r from-primary/30 to-secondary/20 px-8 py-5 rounded-2xl mb-8 
+                            border-2 border-primary/50 backdrop-blur-lg shadow-xl
+                            dark:bg-gradient-to-r dark:from-primary/60 dark:to-secondary/40 
+                            dark:border-primary/80 dark:text-primary-content 
+                            dark:shadow-primary/40 dark:backdrop-blur-2xl
+                            hover:bg-gradient-to-r hover:from-primary/40 hover:to-secondary/30
+                            dark:hover:from-primary/70 dark:hover:to-secondary/50 
+                            transition-all duration-300 ring-2 ring-primary/20 dark:ring-primary/40"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
-                >                  <span className={styles.codeTag}>{'<'}</span>
-                  {/* Enhanced calligraphy text with better visibility */}
-                  <motion.div
-                    className={`px-2 relative inline-flex justify-center items-center`}
-                    style={{ zIndex: 10 }}
-                  >
-                    {/* White background for better visibility */}
-                    <motion.div 
-                      className="absolute inset-0 bg-primary/20 rounded-md -rotate-1"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: [0.3, 0.5, 0.3] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                    />
-                    
-                    {/* Main text with strong visibility */}
-                    <motion.span 
-                      className={`text-2xl inline-block relative font-bold`}
-                      style={{
-                        fontFamily: "var(--font-calligraphy, 'Kalam', cursive)",
-                        color: "red",
-                        textShadow: "0 0 5px hsl(var(--p)), 0 0 10px hsl(var(--p)), 0 0 15px hsl(var(--a))",
-                        WebkitTextStroke: "1px hsl(var(--p))",
-                        transform: "rotate(-2deg)",
-                        zIndex: 10
-                      }}
-                      initial={{ scale: 0.9, opacity: 0.8 }}
-                      animate={{ 
-                        scale: [0.9, 1, 0.9],
-                        opacity: [0.8, 1, 0.8]
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        repeatType: "reverse"
-                      }}
-                    >
-                      नमस्कार
-                    </motion.span>
-                  </motion.div>
-                  <motion.span 
-                    className="inline-block ml-1"
-                    animate={{ 
-                      rotate: [0, 15, -5, 15, 0],
-                      y: [0, -4, 0]
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      repeatDelay: 3
-                    }}
-                  >
-                    🙏
-                  </motion.span>
-                  <span className={styles.codeTag}>{'/>'}</span>
+                  whileHover={{ scale: 1.05, y: -2 }}
+                >
+                  <span className="drop-shadow-sm">Hello, I'm</span>
                 </motion.div>
               </div>
               
-              {/* Main heading with more impact */}
-              <div className="space-y-3">
-                <h1 className={styles.heading}>                  <motion.div
+              {/* Professional main heading that adapts to theme */}
+              <div className="space-y-4">
+                <h1 className="text-4xl md:text-6xl font-bold text-base-content leading-tight">
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                   >
-                    I&apos;m{" "}
-                    <motion.span
-                      className="relative inline-block"
-                      style={{
-                        fontFamily: "var(--font-calligraphy, 'Kalam', cursive)",
-                        fontWeight: 700,
-                        letterSpacing: "0.05em",
-                        color: "#f5072f",
-                        textShadow: "0 0 5px hsl(var(--p)/0.3), 0 0 10px hsl(var(--p)/0.2)",
-                        WebkitTextStroke: "0.5px hsl(var(--p)/0.5)",
-                        transform: "rotate(-1deg)",
-                        display: "inline-block",
-                        // padding: "0 0.1em",
-                        zIndex: 5
-                      }}
-                      animate={{
-                        scale: [1, 1.02, 1],
-                        rotate: ["-1deg", "0deg", "-1deg"],
-                      }}
-                      transition={{
-                        duration: 4,
-                        repeat: Infinity,
-                        repeatType: "reverse"
-                      }}
-                    >
-                      Gaurav Kumar
-                    </motion.span>
+                    <span className="text-primary font-extrabold">Gaurav Kumar</span>
                   </motion.div>
                 </h1>
 
-                {/* Role with typing effect in a terminal-like container */}                <motion.div 
-                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                {/* Professional role description that adapts to theme */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
-                  className="inline-flex"
+                  className="text-xl md:text-2xl text-base-content/80 font-light"
                 >
-                  <motion.div 
-                    className={styles.roleWrapper}
-                    whileHover={{ scale: 1.05, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.15)" }}
-                  >
-                    <motion.span 
-                      className={styles.typedPrefix}
-                      initial={{ y: 0 }}
-                      animate={{ y: [0, -3, 0] }}
-                      transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                    >
-                      function
-                    </motion.span>
-                    <ReactTyped
-                      strings={[
-                        'SoftwareEngineer()',
-                        'FullStackDev()',
-                        'DataScienceEngineer()',
-                        'MLEngineer()',
-                        'RAGDeveloper()',
-                        'AIEnthusiast()'
-                      ]}
-                      typeSpeed={60}
-                      backSpeed={40}
-                      loop
-                      className={styles.typedText}
-                    />
-                  </motion.div>
+                  <ReactTyped
+                    strings={[
+                      'Senior Software Engineer',
+                      'Full-Stack Developer',
+                      'Data Science Engineer',
+                      'AI/ML Specialist',
+                      'Technical Architect'
+                    ]}
+                    typeSpeed={80}
+                    backSpeed={50}
+                    loop
+                    className="text-secondary font-medium"
+                  />
                 </motion.div>
               </div>
               
-              {/* Bio with enhanced styling */}
+              {/* Professional bio description */}
               <motion.div 
-                className="space-y-5"
+                className="space-y-6"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-              >                <motion.p 
-                  className={styles.bio}
+                transition={{ delay: 0.8 }}
+              >
+                <motion.p 
+                  className="text-lg text-base-content/70 leading-relaxed max-w-2xl"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7, duration: 0.5 }}
-                  whileHover={{ 
-                    x: 2,
-                    boxShadow: '0 8px 20px -5px hsla(var(--b1)/0.3)',
-                    transition: { duration: 0.3 }
-                  }}
+                  transition={{ delay: 0.8, duration: 0.5 }}
                 >
-                  I build modern web applications with a focus on{' '}
-                  <motion.span 
-                    className="text-primary font-medium"
-                    whileHover={{ scale: 1.05, display: 'inline-block' }}
-                  >
-                    user experience
-                  </motion.span>{' '}
-                  and{' '}
-                  <motion.span 
-                    className="text-secondary font-medium"
-                    whileHover={{ scale: 1.05, display: 'inline-block' }}
-                  >
-                    performance
-                  </motion.span>, 
-                  specializing in the{' '}
-                  <motion.span 
-                    className="text-accent font-medium"
-                    whileHover={{ scale: 1.05, display: 'inline-block' }}
-                  >
-                    MERN stack
-                  </motion.span>{' '}
-                  and{' '}
-                  <motion.span 
-                    className="text-accent font-medium"
-                    whileHover={{ scale: 1.05, display: 'inline-block' }}
-                  >
-                    Next.js
-                  </motion.span>{' '}
-                  ecosystem. My expertise extends to{' '}
-                  <motion.span 
-                    className="text-info font-medium"
-                    whileHover={{ scale: 1.05, display: 'inline-block' }}
-                  >
-                    data science
-                  </motion.span>{' '}
-                  and{' '}
-                  <motion.span 
-                    className="text-success font-medium"
-                    whileHover={{ scale: 1.05, display: 'inline-block' }}
-                  >
-                    machine learning
-                  </motion.span>, 
-                  implementing{' '}
-                  <motion.span 
-                    className="text-warning font-medium"
-                    whileHover={{ scale: 1.05, display: 'inline-block' }}
-                  >
-                    RAG systems
-                  </motion.span>{' '}
-                  and{' '}
-                  <motion.span 
-                    className="text-error font-medium"
-                    whileHover={{ scale: 1.05, display: 'inline-block' }}
-                  >
-                    AI-powered solutions
-                  </motion.span>.
+                  Experienced software engineer with a proven track record in building scalable web applications 
+                  and implementing cutting-edge AI solutions. Specialized in full-stack development with the{' '}
+                  <span className="text-primary font-semibold">MERN stack</span> and{' '}
+                  <span className="text-secondary font-semibold">Next.js</span>, 
+                  with expertise in{' '}
+                  <span className="text-accent font-semibold">machine learning</span> and{' '}
+                  <span className="text-info font-semibold">data science</span>.
                 </motion.p>
-                  {/* Code comment with improved styling */}
+
+                {/* Enhanced skill badges with vibrant dark theme support */}
                 <motion.div 
-                  className={styles.codeComment}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8, duration: 0.4 }}
-                  whileHover={{ 
-                    x: 3,
-                    boxShadow: '0 5px 15px -5px hsla(var(--b1)/0.2)',
-                    transition: { duration: 0.3 }
-                  }}
+                  className="flex flex-wrap gap-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.0 }}
                 >
-                  <motion.span 
-                    className={styles.commentChar}
-                    animate={{ 
-                      opacity: [0.7, 1, 0.7],
-                      scale: [1, 1.05, 1]
-                    }}
-                    transition={{ 
-                      duration: 3,
-                      repeat: Infinity,
-                      repeatType: "reverse"
-                    }}
-                  >
-                    {'//'}
-                  </motion.span>{' '}
-                  <span className={styles.commentText}>
-                    Transforming ideas into{' '}
-                    <motion.span
-                      style={{ 
-                        fontFamily: "var(--font-calligraphy, 'Kalam', cursive)",
-                        fontWeight: 700,
-                      }}
-                      animate={{ 
-                        color: ['hsl(var(--p))', 'hsl(var(--s))', 'hsl(var(--p))']
-                      }}
-                      transition={{ 
-                        duration: 4,
-                        repeat: Infinity,
-                        repeatType: "reverse"
-                      }}
-                    >
-                      elegant
-                    </motion.span>{' '}
-                    code one commit at a time
-                  </span>
-                </motion.div>
-                  {/* Technology tags with a modern design */}
-                <div className={styles.skillsContainer}>
-                  {['MERN', 'Next.js','TypeScript','GENAI','RAG'].map((skill, index) => (
+                  {[
+                    'Full-Stack Development',
+                    'Machine Learning',
+                    'Cloud Architecture',
+                    'DevOps',
+                    'Team Leadership'
+                  ].map((skill, index) => (
                     <motion.span
                       key={skill}
-                      className={styles.skillBadge}
-                      initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                      animate={{ 
-                        opacity: 1, 
-                        y: 0, 
-                        scale: 1,
-                        transition: { 
-                          delay: 0.8 + (index * 0.1),
-                          duration: 0.4,
-                          type: "spring",
-                          stiffness: 260,
-                          damping: 20
-                        }
-                      }}
+                      className="px-4 py-2 bg-base-200/90 text-base-content rounded-full text-sm font-medium 
+                                border border-base-300/60 hover:border-primary/60 hover:bg-primary/15 
+                                transition-all duration-300 backdrop-blur-sm
+                                dark:bg-base-200/95 dark:border-base-300/90 dark:hover:bg-primary/25
+                                dark:hover:border-primary/80 dark:shadow-sm dark:hover:shadow-primary/20"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.0 + (index * 0.1) }}
                       whileHover={{ 
-                        y: -5, 
+                        y: -2, 
                         scale: 1.05,
-                        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.15)'
-                      }}
-                      whileTap={{ 
-                        scale: 0.95,
-                        boxShadow: '0 5px 15px -5px rgba(0, 0, 0, 0.1)'
+                        boxShadow: '0 5px 15px -5px hsl(var(--primary) / 0.4)'
                       }}
                     >
                       {skill}
                     </motion.span>
                   ))}
-                </div>
-                  {/* Call to action buttons with improved design */}
+                </motion.div>
+
+                {/* Professional CTA buttons with vibrant dark theme */}
                 <motion.div 
-                  className={styles.ctaContainer}
+                  className="flex flex-col sm:flex-row gap-4"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    delay: 1.0,
-                    duration: 0.5,
-                    type: "spring",
-                    stiffness: 250,
-                    damping: 20
-                  }}
+                  transition={{ delay: 1.2 }}
                 >
                   <motion.a
                     href="#contact"
-                    className={styles.primaryButton}
-                    whileHover={{ 
-                      scale: 1.05,
-                      transition: { duration: 0.3 }
-                    }}
-                    whileTap={{ scale: 0.97 }}
+                    className="inline-flex items-center justify-center px-8 py-3 bg-primary text-primary-content 
+                              rounded-lg font-medium hover:bg-primary/90 transition-all duration-300 
+                              shadow-lg hover:shadow-xl min-w-[160px]
+                              dark:shadow-primary/30 dark:hover:shadow-primary/50 dark:hover:shadow-xl"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
                     Get in Touch
-                    <motion.span 
-                      className={styles.buttonIcon}
-                      animate={{ 
-                        y: [0, -3, 0],
-                        rotate: [0, 5, 0]
-                      }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        repeatDelay: 2.5
-                      }}
-                    >
-                      ✉️
-                    </motion.span>
+                    <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
                   </motion.a>
+                  
                   <motion.a
                     href="#projects"
-                    className={styles.secondaryButton}
-                    whileHover={{ 
-                      scale: 1.05, 
-                      backgroundColor: 'hsla(var(--b2)/0.8)',
-                      transition: { duration: 0.3 }
-                    }}
-                    whileTap={{ scale: 0.97 }}
+                    className="inline-flex items-center justify-center px-8 py-3 border-2 border-primary 
+                              text-primary rounded-lg font-medium hover:bg-primary hover:text-primary-content 
+                              transition-all duration-300 min-w-[160px]
+                              dark:border-primary/90 dark:hover:border-primary dark:text-primary 
+                              dark:hover:shadow-primary/20"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    View Projects
-                    <motion.span 
-                      className={styles.buttonIcon}
-                      animate={{ 
-                        x: [0, 3, 0],
-                        y: [0, -3, 0],
-                      }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        repeatDelay: 2
-                      }}
-                    >
-                      🚀
-                    </motion.span>
+                    View Portfolio
+                    <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </motion.a>
+                  
+                  <motion.a
+                    href="/resume.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center px-8 py-3 bg-base-200/90 
+                              text-base-content rounded-lg font-medium hover:bg-base-300/90 
+                              transition-all duration-300 border border-base-300/60 min-w-[160px]
+                              backdrop-blur-sm
+                              dark:bg-base-200/95 dark:border-base-300/90 dark:hover:bg-base-300/95
+                              dark:shadow-sm dark:hover:shadow-md"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Download CV
+                    <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
                   </motion.a>
                 </motion.div>
               </motion.div>
             </motion.div>
 
-            {/* Profile image container with enhanced visual effects */}
+            {/* Professional profile image with enhanced dark theme */}
             <motion.div
               className="lg:col-span-5 flex justify-center lg:justify-end"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              <div className={styles.profileWrapper}>
-                {/* Animated rings around profile */}
+              <div className="relative">
+                {/* Clean, professional image container with vibrant dark theme adaptation */}
                 <motion.div 
-                  className={styles.orbitalRing}
-                  style={{ animationDelay: '0s' }}
-                />
-                <motion.div 
-                  className={styles.orbitalRing}
-                  style={{ animationDelay: '1s' }}
-                />
-                <motion.div 
-                  className={styles.orbitalRing}
-                  style={{ animationDelay: '2s' }}
-                />
-                
-                {/* Binary code ring */}
-                <div className={styles.binaryCodeRing}>
-                  {Array(24).fill(0).map((_, i) => {
-                    const symbols = ['0', '1', '∞', 'π', '∑', '∫', '√', 'λ', '∇', '{}', '<>', '[]'];
-                    const symbol = symbols[Math.floor(Math.random() * symbols.length)];
-                    const distance = 47 + (Math.random() * 5);
-                    const angle = (i / 24) * Math.PI * 2;
-                    
-                    return (
-                      <div 
-                        key={i} 
-                        className={styles.binaryDigit}
-                        style={{ 
-                          animationDelay: `${i * 0.15}s`,
-                          left: `${50 + distance * Math.cos(angle)}%`,
-                          top: `${50 + distance * Math.sin(angle)}%`,
-                          fontSize: `${Math.random() * 4 + 12}px`,
-                          opacity: Math.random() * 0.5 + 0.3
-                        }}
-                      >
-                        {symbol}
-                      </div>
-                    );
-                  })}
-                </div>
-                
-                {/* Terminal-style profile frame */}
-                <motion.div 
-                  className={styles.terminalFrame}
-                  animate={{
-                    boxShadow: [
-                      "0 0 10px hsla(var(--p)/0.3)",
-                      "0 0 20px hsla(var(--p)/0.5)",
-                      "0 0 10px hsla(var(--p)/0.3)"
-                    ]
+                  className="relative w-80 h-80 md:w-96 md:h-96 rounded-2xl overflow-hidden 
+                            border-4 border-primary/20 shadow-2xl bg-gradient-to-br from-primary/5 to-secondary/5
+                            ring-1 ring-base-300/20
+                            dark:border-primary/40 dark:shadow-primary/20 dark:shadow-2xl 
+                            dark:bg-gradient-to-br dark:from-primary/10 dark:to-secondary/10
+                            dark:ring-primary/20"
+                  whileHover={{ 
+                    scale: 1.02,
+                    boxShadow: '0 25px 50px -12px hsl(var(--shadow) / 0.25)'
                   }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    repeatType: "reverse"
-                  }}
+                  transition={{ duration: 0.3 }}
                 >
-                  {/* Terminal header with macOS-style controls */}
-                  <div className={styles.terminalHeader}>
-                    <div className={styles.terminalControls}>
-                      <div className={styles.terminalDot} style={{ backgroundColor: "#FF5F56" }}></div>
-                      <div className={styles.terminalDot} style={{ backgroundColor: "#FFBD2E" }}></div>
-                      <div className={styles.terminalDot} style={{ backgroundColor: "#27C93F" }}></div>
-                    </div>
-                    
-                    <div className={styles.terminalTitle}>
-                      <motion.span
-                        animate={{ color: ['hsla(var(--bc)/0.7)', 'hsla(var(--p)/0.8)', 'hsla(var(--bc)/0.7)'] }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                      >
-                        gaurav@developer ~ process running
-                      </motion.span>
-                    </div>
-                  </div>
-                  {/* Code overlay and scanline effect */}
-                  <div className={styles.codeOverlay}></div>
-                  {/* Profile image with effects */}
-                  <motion.div
-                    className={styles.imageContainer}
-                    whileHover={{ scale: 1.03 }}
-                  >
-                    <Image
-                      src="/gaurav.jpg"
-                      alt="Gaurav Kumar - Software Engineer"
-                      fill
-                      priority
-                      sizes="(max-width: 640px) 280px, (max-width: 1024px) 320px, 380px"
-                      className="object-cover"
-                    />
-                    {/* Code overlay and scanline effect */}
-                    <div className={styles.codeOverlay}></div>
-                    <div className={styles.scanline}></div>
-                  </motion.div>
+                  <Image
+                    src="/gaurav.jpg"
+                    alt="Gaurav Kumar - Software Engineer"
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 320px, 384px"
+                    className="object-cover"
+                  />
+                  
+                  {/* Professional overlay gradient - enhanced for dark theme */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/10 via-transparent to-transparent 
+                                  dark:from-primary/20 dark:via-transparent dark:to-transparent" />
                 </motion.div>
-                {/* Decorative code brackets */}
+
+                {/* Floating professional badges with enhanced dark theme */}
                 <motion.div 
-                  className={styles.bracketLeft}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{
-                    opacity: [0.5, 0.8, 0.5],
-                    x: [-5, 0, -5]
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                  }}
+                  className="absolute -top-4 -right-4 bg-primary text-primary-content 
+                            px-4 py-2 rounded-full text-sm font-medium shadow-lg
+                            dark:shadow-primary/30 dark:shadow-xl"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.0 }}
+                  whileHover={{ scale: 1.05 }}
                 >
-                  {'{'}
+                  Available for Work
                 </motion.div>
+{/* 
                 <motion.div 
-                  className={styles.bracketRight}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{
-                    opacity: [0.5, 0.8, 0.5],
-                    x: [5, 0, 5]
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                  }}
+                  className="absolute -bottom-4 -left-4 bg-secondary text-secondary-content 
+                            px-4 py-2 rounded-full text-sm font-medium shadow-lg
+                            dark:shadow-secondary/30 dark:shadow-xl"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2 }}
+                  whileHover={{ scale: 1.05 }}
                 >
-                  {'}'}
-                </motion.div>
-              </div>            </motion.div>
+                  5+ Years Experience
+                </motion.div> */}
+              </div>
+            </motion.div>
           </div>
           
-          {/* Mathematical formula with enhanced styling */}
-          <motion.div
-            className={styles.mathFormula}
+          {/* Professional achievements section with enhanced dark theme */}
+          {/* <motion.div
+            className="mt-12 pt-8 border-t border-base-300/50 dark:border-base-300/80"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2 }}
-            whileHover={{ scale: 1.03 }}
+            transition={{ delay: 1.4 }}
           >
-            <motion.span className={styles.sigma}>∑</motion.span>
-            <motion.span className={styles.formulaText}>
-              (creativity<sup>2</sup> + technology<sup>expertise</sup>) × passion = 
-              <motion.span
-                className={styles.resultText}
-                animate={{
-                  color: [
-                    'hsl(var(--p))',
-                    'hsl(var(--s))',
-                    'hsl(var(--a))',
-                    'hsl(var(--p))'
-                  ]
-                }}
-                transition={{
-                  duration: 5,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-              >
-                exceptional_results
-              </motion.span>
-            </motion.span>
-          </motion.div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+              <div>
+                <div className="text-2xl md:text-3xl font-bold text-primary">50+</div>
+                <div className="text-sm text-base-content/60 dark:text-base-content/80 mt-1">Projects Completed</div>
+              </div>
+              <div>
+                <div className="text-2xl md:text-3xl font-bold text-secondary">5+</div>
+                <div className="text-sm text-base-content/60 dark:text-base-content/80 mt-1">Years Experience</div>
+              </div>
+              <div>
+                <div className="text-2xl md:text-3xl font-bold text-accent">15+</div>
+                <div className="text-sm text-base-content/60 dark:text-base-content/80 mt-1">Technologies</div>
+              </div>
+              <div>
+                <div className="text-2xl md:text-3xl font-bold text-info">24/7</div>
+                <div className="text-sm text-base-content/60 dark:text-base-content/80 mt-1">Support Available</div>
+              </div>
+            </div>
+          </motion.div> */}
         </motion.div>
       </div>
     </section>

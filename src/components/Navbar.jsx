@@ -3,7 +3,7 @@
 import { useTheme } from './theme-provider'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { FaSun, FaMoon, FaMusic, FaFileDownload, FaHome } from 'react-icons/fa'
+import { FaSun, FaMoon, FaMusic, FaFileDownload, FaHome, FaPaintBrush, FaCircle, FaArrowRight, FaStar } from 'react-icons/fa'
 import { FiMenu, FiX } from 'react-icons/fi'
 import useFetch from '@/hooks/useFetch'
 
@@ -109,6 +109,201 @@ const AnimatedNotes = () => (
     ))}
   </div>
 )
+
+// Enhanced Theme Toggle Component with Animation Options
+const ThemeToggleWithAnimations = ({ toggleTheme, theme }) => {
+  const [showOptions, setShowOptions] = useState(false)
+  const [isPressed, setIsPressed] = useState(false)
+  const pressTimer = useRef(null)
+
+  const animationOptions = [
+    { 
+      type: 'brush', 
+      name: 'Brush Paint', 
+      icon: FaPaintBrush, 
+      color: 'text-orange-500',
+      description: 'Paint brush stroke effect'
+    },
+    { 
+      type: 'ripple', 
+      name: 'Ripple Wave', 
+      icon: FaCircle, 
+      color: 'text-blue-500',
+      description: 'Expanding ripple circles'
+    },
+    { 
+      type: 'slide', 
+      name: 'Slide Panel', 
+      icon: FaArrowRight, 
+      color: 'text-green-500',
+      description: 'Sliding geometric shapes'
+    },
+    { 
+      type: 'morph', 
+      name: 'Shape Morph', 
+      icon: FaStar, 
+      color: 'text-purple-500',
+      description: 'Morphing central shape'
+    }
+  ]
+
+  const handleMouseDown = () => {
+    setIsPressed(true)
+    pressTimer.current = setTimeout(() => {
+      if (isPressed) {
+        setShowOptions(true)
+      }
+    }, 500) // Long press duration
+  }
+
+  const handleMouseUp = () => {
+    setIsPressed(false)
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current)
+      if (!showOptions) {
+        // Quick click - use default brush animation
+        toggleTheme('brush')
+      }
+    }
+  }
+
+  const handleAnimationSelect = (animationType) => {
+    setShowOptions(false)
+    toggleTheme(animationType)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (pressTimer.current) {
+        clearTimeout(pressTimer.current)
+      }
+    }
+  }, [])
+
+  return (
+    <div className="relative">
+      <motion.button 
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={() => {
+          setIsPressed(false)
+          if (pressTimer.current) clearTimeout(pressTimer.current)
+        }}
+        className="p-2.5 rounded-xl bg-base-200/50 backdrop-blur-sm relative overflow-hidden group"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        {/* Long press indicator */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-xl"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: isPressed ? 1 : 0 }}
+          transition={{ duration: 0.5 }}
+          style={{ transformOrigin: 'left' }}
+        />
+        
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={theme}
+            initial={{ opacity: 0, rotateZ: -45, scale: 0.8 }}
+            animate={{ opacity: 1, rotateZ: 0, scale: 1 }}
+            exit={{ opacity: 0, rotateZ: 45, scale: 0.8 }}
+            transition={{ duration: 0.3, type: "spring" }}
+            className="relative z-10"
+          >
+            {theme === 'dark' ? (
+              <FaSun className="w-5 h-5 text-yellow-400 drop-shadow-sm" />
+            ) : (
+              <FaMoon className="w-5 h-5 text-slate-600 drop-shadow-sm" />
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Hover hint */}
+        <motion.div
+          className="absolute -top-2 -right-2 w-2 h-2 bg-primary rounded-full"
+          animate={{ 
+            scale: [1, 1.2, 1], 
+            opacity: [0.7, 1, 0.7] 
+          }}
+          transition={{ 
+            duration: 2, 
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </motion.button>
+
+      {/* Animation Options Dropdown */}
+      <AnimatePresence>
+        {showOptions && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowOptions(false)}
+            />
+            
+            {/* Options Menu */}
+            <motion.div
+              className="absolute top-14 right-0 w-72 bg-base-100 rounded-2xl shadow-2xl border border-base-content/10 overflow-hidden z-50"
+              initial={{ opacity: 0, scale: 0.8, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: -10 }}
+              transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            >
+              <div className="p-4">
+                <h3 className="text-sm font-semibold text-base-content/80 mb-3 flex items-center gap-2">
+                  <FaPaintBrush className="w-4 h-4 text-primary" />
+                  Choose Animation Style
+                </h3>
+                
+                <div className="space-y-2">
+                  {animationOptions.map((option, index) => (
+                    <motion.button
+                      key={option.type}
+                      onClick={() => handleAnimationSelect(option.type)}
+                      className="w-full p-3 rounded-xl bg-base-200/50 hover:bg-base-200 transition-colors text-left group"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg bg-base-100 ${option.color} group-hover:scale-110 transition-transform`}>
+                          <option.icon className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium text-sm">{option.name}</div>
+                          <div className="text-xs text-base-content/60">{option.description}</div>
+                        </div>
+                        <motion.div
+                          className="w-2 h-2 rounded-full bg-primary opacity-0 group-hover:opacity-100"
+                          whileHover={{ scale: 1.5 }}
+                          transition={{ type: "spring" }}
+                        />
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+                
+                <div className="mt-4 pt-3 border-t border-base-content/10">
+                  <p className="text-xs text-base-content/50 text-center">
+                    💡 Quick tap for brush effect, long press for options
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
 
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme()
@@ -361,28 +556,7 @@ export default function Navbar() {
                 />
               </motion.button>
 
-              <motion.button 
-                onClick={toggleTheme}
-                className="p-2.5 rounded-xl bg-base-200/50 backdrop-blur-sm"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={theme}
-                    initial={{ opacity: 0, rotateZ: -45 }}
-                    animate={{ opacity: 1, rotateZ: 0 }}
-                    exit={{ opacity: 0, rotateZ: 45 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {theme === 'dark' ? (
-                      <FaSun className="w-5 h-5 text-yellow-400" />
-                    ) : (
-                      <FaMoon className="w-5 h-5 text-slate-600" />
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </motion.button>
+              <ThemeToggleWithAnimations toggleTheme={toggleTheme} theme={theme} />
             </div>            <motion.button 
               className="lg:hidden p-2 rounded-xl hover:bg-base-200/50 ml-auto menu-button"
               onClick={() => setIsOpen(prev => !prev)}
@@ -469,25 +643,9 @@ export default function Navbar() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: (navItems.length + 0.1) * 0.1 }}
                   >
-                    <button
-                      onClick={toggleTheme}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-base-200/70"
-                    >
-                      <span className="text-lg">
-                        {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                      </span>
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="p-2 bg-base-200/50 rounded-lg"
-                      >
-                        {theme === 'dark' ? (
-                          <FaSun className="w-5 h-5 text-yellow-400" />
-                        ) : (
-                          <FaMoon className="w-5 h-5 text-slate-600" />
-                        )}
-                      </motion.div>
-                    </button>
+                    <div className="px-4 py-2">
+                      <ThemeToggleWithAnimations toggleTheme={toggleTheme} theme={theme} />
+                    </div>
                   </motion.li>
 
                   <motion.li
