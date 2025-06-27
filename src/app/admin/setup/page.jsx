@@ -1,68 +1,112 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { AlertTriangle, Shield, Terminal } from 'lucide-react'
 
 export default function AdminSetup() {
   const router = useRouter()
+  const [setupStatus, setSetupStatus] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Redirect to login after a short delay
-    const timer = setTimeout(() => {
-      router.push('/admin/login')
-    }, 5000)
+    checkSetupStatus()
+  }, [])
 
-    return () => clearTimeout(timer)
-  }, [router])
+  const checkSetupStatus = async () => {
+    try {
+      const response = await fetch('/api/admin/setup')
+      const data = await response.json()
+      setSetupStatus(data)
+    } catch (error) {
+      console.error('Error checking setup status:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  if (!setupStatus?.setupRequired) {
+    router.push('/admin/login')
+    return null
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-2xl w-full space-y-8">
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 text-red-600">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 48 48" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+          <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-amber-100">
+            <Shield className="h-8 w-8 text-amber-600" />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Setup Disabled
+            Admin Setup Required
           </h2>
-          <div className="mt-4 text-sm text-gray-600 space-y-2">
-            <p>
-              For security reasons, admin setup via web interface has been disabled.
-            </p>
-            <p>
-              To create an admin account, run the following command in your terminal:
-            </p>
-            <div className="mt-4 p-4 bg-gray-100 rounded-md">
-              <code className="text-sm font-mono text-gray-800">
-                npm run create-admin
-              </code>
-            </div>
-            <p className="mt-4">
-              This ensures only users with server access can create admin accounts.
-            </p>
-          </div>
-          
-          <div className="mt-8 space-y-4">
-            <Link
-              href="/admin/login"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Go to Login
-            </Link>
-            <Link
-              href="/"
-              className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Back to Portfolio
-            </Link>
-          </div>
-          
-          <p className="mt-4 text-xs text-gray-500">
-            Redirecting to login in 5 seconds...
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Create your admin account to access the admin panel
           </p>
+        </div>
+
+        <div className="bg-white shadow-lg rounded-lg p-8">
+          <div className="mb-6">
+            <div className="flex items-center">
+              <AlertTriangle className="h-5 w-5 text-amber-500 mr-2" />
+              <h3 className="text-lg font-medium text-gray-900">Security Notice</h3>
+            </div>
+            <p className="mt-2 text-sm text-gray-600">
+              For security reasons, admin accounts can only be created via the command line.
+              This prevents unauthorized web-based account creation.
+            </p>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-6">
+            <div className="flex items-center mb-4">
+              <Terminal className="h-5 w-5 text-gray-600 mr-2" />
+              <h4 className="text-md font-medium text-gray-900">Create Admin Account</h4>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-600 mb-2">
+                  Run the following command in your project directory:
+                </p>
+                <div className="bg-gray-900 text-green-400 p-4 rounded-md font-mono text-sm">
+                  npm run create-admin
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <p className="text-xs text-gray-500">
+                  This command will prompt you to enter your admin credentials and create the admin account securely.
+                  Once created, you can use the login page to access the admin panel.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={checkSetupStatus}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            >
+              Check Setup Status
+            </button>
+          </div>
+        </div>
+
+        <div className="text-center">
+          <button
+            onClick={() => router.push('/')}
+            className="text-sm text-blue-600 hover:text-blue-500 transition-colors"
+          >
+            ← Back to Portfolio
+          </button>
         </div>
       </div>
     </div>

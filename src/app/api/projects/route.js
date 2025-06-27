@@ -68,11 +68,23 @@ export async function GET() {
 
 // Helper function to check admin authentication
 async function checkAdminAuth() {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user || session.user.role !== 'admin') {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session || !session.user) {
+      return false;
+    }
+    
+    // Check if user has admin or super_admin role
+    if (session.user.role !== 'admin' && session.user.role !== 'super_admin') {
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Auth check error:', error);
     return false;
   }
-  return true;
 }
 
 // Create new project (Admin only)

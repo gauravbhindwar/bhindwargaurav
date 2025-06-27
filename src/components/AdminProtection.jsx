@@ -2,57 +2,74 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
-export default function AdminProtection({ children, requiredRole = 'admin' }) {
+export default function AdminProtection({ children }) {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const [isAuthorized, setIsAuthorized] = useState(false)
+  const [isChecking, setIsChecking] = useState(true)
 
-  // Handle authentication and redirects
   useEffect(() => {
-    // Don't redirect if we're already on the login page
-    if (typeof window !== 'undefined' && window.location.pathname === '/admin/login') {
-      return;
-    }
-    
-    // Only redirect when status is definitively known and user isn't authenticated properly
-    if (status !== 'loading' && (status === 'unauthenticated' || session?.user?.role !== requiredRole)) {
-      // Save the current path as callbackUrl for post-login redirect
-      const currentPath = window.location.pathname;
-      const loginPath = '/admin/login';
-      const redirectPath = currentPath !== '/admin/dashboard' 
-        ? `${loginPath}?callbackUrl=${encodeURIComponent(currentPath)}`
-        : loginPath;
-      
-      router.replace(redirectPath);
-    }
-  }, [session, status, router, requiredRole]);
+    const checkAuth = () => {
+      if (status === 'loading') {
+        setIsChecking(true)
+        return
+      }
 
-  // Show loading while checking authentication or redirecting
-  if (status === 'loading') {
+      if (!session) {
+        setIsChecking(false)
+        setIsAuthorized(false)
+        router.replace('/admin/login')
+        return
+      }
+
+      // Check if user has admin role
+      if (session.user?.role !== 'admin' && session.user?.role !== 'super_admin') {
+        setIsChecking(false)
+        setIsAuthorized(false)
+        router.replace('/admin/login')
+        return
+      }
+
+      // User is authenticated and has proper role
+      setIsChecking(false)
+      setIsAuthorized(true)
+    }
+
+    checkAuth()
+  }, [session, status, router])
+
+  // Show loading while checking authentication
+  if (isChecking || status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking authentication...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Verifying authentication...</p>
         </div>
       </div>
-    );
-  }
-  
-  // Show redirecting message when authenticated but without proper role
-  // or when unauthenticated (but avoid flickering by showing only after a delay)
-  if (status === 'unauthenticated' || session?.user?.role !== requiredRole) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Redirecting to login...</p>
-        </div>
-      </div>
-    );
+    )
   }
 
-  // User is authenticated with correct role
-  return children;
+  // Don't render children if not authorized
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">🔒</div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <p className="text-gray-600 mb-4">You need admin privileges to access this page.</p>
+          <button
+            onClick={() => router.push('/admin/login')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return children
 }
