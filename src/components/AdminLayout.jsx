@@ -3,7 +3,7 @@
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   LayoutDashboard, 
   FolderOpen, 
@@ -16,7 +16,9 @@ import {
   X,
   User,
   Settings,
-  Users
+  Users,
+  ExternalLink,
+  Eye
 } from 'lucide-react'
 import AdminProtection from './AdminProtection'
 
@@ -63,9 +65,38 @@ export default function AdminLayout({ children }) {
   const router = useRouter()
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showPortfolioModal, setShowPortfolioModal] = useState(false)
+
+  // ESC key handler for closing modals
+  useEffect(() => {
+    const handleEscKey = (event) => {
+      if (event.key === 'Escape') {
+        if (showPortfolioModal) {
+          setShowPortfolioModal(false)
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleEscKey)
+    return () => document.removeEventListener('keydown', handleEscKey)
+  }, [showPortfolioModal])
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' })
+  }
+
+  const handlePortfolioClick = () => {
+    setShowPortfolioModal(true)
+  }
+
+  const openPortfolio = (newTab = false) => {
+    const portfolioUrl = '/'
+    if (newTab) {
+      window.open(portfolioUrl, '_blank', 'noopener,noreferrer')
+    } else {
+      window.location.href = portfolioUrl
+    }
+    setShowPortfolioModal(false)
   }
 
   return (
@@ -112,6 +143,14 @@ export default function AdminLayout({ children }) {
             </div>
 
             <div className="mt-8 pt-8 border-t border-gray-200 pb-6">
+              <button
+                onClick={handlePortfolioClick}
+                className="w-full group flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900 transition-colors mb-4"
+              >
+                <Eye className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
+                View Portfolio
+              </button>
+              
               <div className="flex items-center px-3 py-2 text-sm text-gray-600">
                 <User className="mr-3 h-5 w-5 text-gray-400" />
                 <div>
@@ -172,6 +211,47 @@ export default function AdminLayout({ children }) {
             className="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
+        )}
+
+        {/* Portfolio Modal */}
+        {showPortfolioModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+              <div className="text-center">
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+                  <Eye className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  View Portfolio
+                </h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  How would you like to open your portfolio?
+                </p>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => openPortfolio(true)}
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open in New Tab
+                  </button>
+                  <button
+                    onClick={() => openPortfolio(false)}
+                    className="w-full bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Open in Current Tab
+                  </button>
+                  <button
+                    onClick={() => setShowPortfolioModal(false)}
+                    className="w-full bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </AdminProtection>
