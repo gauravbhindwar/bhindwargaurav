@@ -15,7 +15,8 @@ import {
   Menu, 
   X,
   User,
-  Settings
+  Settings,
+  Users
 } from 'lucide-react'
 import AdminProtection from './AdminProtection'
 
@@ -49,6 +50,11 @@ const sidebarItems = [
     name: 'Contact',
     href: '/admin/contact',
     icon: Mail
+  },
+  {
+    name: 'Admins',
+    href: '/admin/admins',
+    icon: Users
   }
 ]
 
@@ -64,12 +70,12 @@ export default function AdminLayout({ children }) {
 
   return (
     <AdminProtection>
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="h-screen bg-gray-50 flex overflow-hidden">
         {/* Sidebar */}
         <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
-          <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+        } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col`}>
+          <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 flex-shrink-0">
             <h1 className="text-xl font-bold text-gray-800">Admin Panel</h1>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -79,7 +85,7 @@ export default function AdminLayout({ children }) {
             </button>
           </div>
 
-          <nav className="mt-6 px-3">
+          <nav className="flex-1 overflow-y-auto mt-6 px-3">
             <div className="space-y-1">
               {sidebarItems.map((item) => {
                 const Icon = item.icon
@@ -105,7 +111,7 @@ export default function AdminLayout({ children }) {
               })}
             </div>
 
-            <div className="mt-8 pt-8 border-t border-gray-200">
+            <div className="mt-8 pt-8 border-t border-gray-200 pb-6">
               <div className="flex items-center px-3 py-2 text-sm text-gray-600">
                 <User className="mr-3 h-5 w-5 text-gray-400" />
                 <div>
@@ -126,9 +132,9 @@ export default function AdminLayout({ children }) {
         </div>
 
         {/* Main content */}
-        <div className="flex-1 lg:ml-0">
+        <div className="flex-1 lg:ml-0 flex flex-col h-full">
           {/* Top bar */}
-          <div className="bg-white shadow-sm border-b border-gray-200">
+          <div className="bg-white shadow-sm border-b border-gray-200 flex-shrink-0">
             <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
               <button
                 onClick={() => setSidebarOpen(true)}
@@ -154,8 +160,8 @@ export default function AdminLayout({ children }) {
             </div>
           </div>
 
-          {/* Page content */}
-          <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          {/* Page content - Scrollable area */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
             {children}
           </main>
         </div>

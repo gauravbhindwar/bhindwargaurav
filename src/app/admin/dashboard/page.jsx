@@ -13,7 +13,8 @@ import {
   TrendingUp, 
   Eye, 
   Activity,
-  Github
+  Github,
+  Users
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
@@ -169,6 +170,14 @@ function AdminDashboard() {
       color: 'bg-indigo-500',
       href: '/admin/contact',
       action: 'Update Contact'
+    },
+    {
+      title: 'Manage Admins',
+      description: 'Create, update, and manage admin accounts',
+      icon: Users,
+      color: 'bg-purple-600',
+      href: '/admin/admins',
+      action: 'Manage Admins'
     }
   ];
 

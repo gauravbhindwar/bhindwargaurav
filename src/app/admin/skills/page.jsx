@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Code, BookOpen, Brain, Users, Award, Plus, Search, Filter, Grid, List, Star, Zap, ExternalLink, Edit, Trash2 } from 'lucide-react'
+import { Code, BookOpen, Brain, Users, Award, Plus, Search, Filter, Grid, List, Star, Zap, ExternalLink, Edit, Trash2, AlertTriangle } from 'lucide-react'
 
 export default function AdminSkills() {
   const { data: session, status } = useSession()
@@ -27,6 +27,8 @@ export default function AdminSkills() {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState(null)
 
   const categories = ['Languages', 'Web Development', 'Data Science & ML', 'Tools & Platforms']
   const courseTypes = ['completed', 'current', 'paused', 'planned']
@@ -58,6 +60,26 @@ export default function AdminSkills() {
 
     fetchData()
   }, [session, status, router])
+
+  // ESC key handler for closing modals
+  useEffect(() => {
+    const handleEscKey = (event) => {
+      if (event.key === 'Escape') {
+        if (showForm) {
+          setShowForm(false)
+          setEditingItem(null)
+          resetForm()
+        }
+        if (showDeleteModal) {
+          setShowDeleteModal(false)
+          setItemToDelete(null)
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleEscKey)
+    return () => document.removeEventListener('keydown', handleEscKey)
+  }, [showForm, showDeleteModal])
 
   const fetchData = async () => {
     try {
@@ -200,7 +222,14 @@ export default function AdminSkills() {
   }
 
   const handleDelete = async (item, type) => {
-    if (!confirm(`Are you sure you want to delete this ${type}?`)) return
+    setItemToDelete({ item, type })
+    setShowDeleteModal(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return
+
+    const { item, type } = itemToDelete
 
     try {
       console.log('Deleting item:', item, 'Type:', type) // Debug log
@@ -231,6 +260,9 @@ export default function AdminSkills() {
     } catch (error) {
       console.error('Error deleting item:', error)
       alert('Error deleting item')
+    } finally {
+      setShowDeleteModal(false)
+      setItemToDelete(null)
     }
   }
 
@@ -842,6 +874,43 @@ export default function AdminSkills() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && itemToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Delete {itemToDelete.type === 'skill' ? 'Skill' : 'Course'}
+              </h3>
+              <p className="text-sm text-gray-500 mb-6">
+                Are you sure you want to delete the {itemToDelete.type} <span className="font-semibold">"{itemToDelete.item.name || itemToDelete.item.title}"</span>? This action cannot be undone.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false)
+                    setItemToDelete(null)
+                  }}
+                  className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

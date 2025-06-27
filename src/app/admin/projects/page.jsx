@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { FolderOpen, ExternalLink, Github, Eye, Edit, Trash2, Plus, Search, Filter, Grid, List, Star, Calendar, Code, Zap } from 'lucide-react'
+import { FolderOpen, ExternalLink, Github, Eye, Edit, Trash2, Plus, Search, Filter, Grid, List, Star, Calendar, Code, Zap, AlertTriangle } from 'lucide-react'
 import { isValidImageUrl, preloadImage, optimizeImageUrl } from '@/utils/imageOptimization'
 
 export default function AdminProjects() {
@@ -41,6 +41,8 @@ export default function AdminProjects() {
   // Track image loading states
   const [imageLoadingStates, setImageLoadingStates] = useState({})
   const [imagePreviewUrl, setImagePreviewUrl] = useState('')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [projectToDelete, setProjectToDelete] = useState(null)
 
   // Filter projects based on search and status
   const filteredProjects = projects.filter(project => {
@@ -68,6 +70,26 @@ export default function AdminProjects() {
 
     fetchProjects()
   }, [session, status, router])
+
+  // ESC key handler for closing modals
+  useEffect(() => {
+    const handleEscKey = (event) => {
+      if (event.key === 'Escape') {
+        if (showForm) {
+          setShowForm(false)
+          setEditingProject(null)
+          resetForm()
+        }
+        if (showDeleteModal) {
+          setShowDeleteModal(false)
+          setProjectToDelete(null)
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleEscKey)
+    return () => document.removeEventListener('keydown', handleEscKey)
+  }, [showForm, showDeleteModal])
 
   // Toggle features expansion for a specific project
   const toggleFeatures = (projectId) => {
@@ -367,10 +389,15 @@ export default function AdminProjects() {
   }
 
   const handleDelete = async (project) => {
-    if (!confirm('Are you sure you want to delete this project?')) return
+    setProjectToDelete(project)
+    setShowDeleteModal(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!projectToDelete) return
 
     try {
-      const response = await fetch(`/api/projects?id=${project._id}`, {
+      const response = await fetch(`/api/projects?id=${projectToDelete._id}`, {
         method: 'DELETE'
       })
 
@@ -383,6 +410,9 @@ export default function AdminProjects() {
     } catch (error) {
       console.error('Error deleting project:', error)
       alert('Error deleting project')
+    } finally {
+      setShowDeleteModal(false)
+      setProjectToDelete(null)
     }
   }
 
@@ -1231,6 +1261,43 @@ export default function AdminProjects() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && projectToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Delete Project
+              </h3>
+              <p className="text-sm text-gray-500 mb-6">
+                Are you sure you want to delete the project <span className="font-semibold">"{projectToDelete.title}"</span>? This action cannot be undone.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false)
+                    setProjectToDelete(null)
+                  }}
+                  className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

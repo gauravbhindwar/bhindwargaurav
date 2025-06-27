@@ -37,6 +37,20 @@ export default function AdminContact() {
     fetchContact()
   }, [session, status, router])
 
+  // ESC key handler for closing modals
+  useEffect(() => {
+    const handleEscKey = (event) => {
+      if (event.key === 'Escape') {
+        if (showPreview) {
+          setShowPreview(false)
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleEscKey)
+    return () => document.removeEventListener('keydown', handleEscKey)
+  }, [showPreview])
+
   const fetchContact = async () => {
     try {
       const response = await fetch('/api/contact')

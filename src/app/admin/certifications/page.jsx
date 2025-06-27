@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Award, ExternalLink, Plus, Search, Filter, Grid, List, Star, Calendar, Edit, Trash2, Users, Zap, CheckCircle, Globe } from 'lucide-react'
+import { Award, ExternalLink, Plus, Search, Filter, Grid, List, Star, Calendar, Edit, Trash2, Users, Zap, CheckCircle, Globe, AlertTriangle } from 'lucide-react'
 
 export default function AdminCertifications() {
   const { data: session, status } = useSession()
@@ -26,6 +26,8 @@ export default function AdminCertifications() {
   })
   const [searchTerm, setSearchTerm] = useState('')
   const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [certificationToDelete, setCertificationToDelete] = useState(null)
 
   // Helper function to parse various date formats
   const parseDate = (dateString) => {
@@ -86,6 +88,26 @@ export default function AdminCertifications() {
 
     fetchCertifications()
   }, [session, status, router])
+
+  // ESC key handler for closing modals
+  useEffect(() => {
+    const handleEscKey = (event) => {
+      if (event.key === 'Escape') {
+        if (showForm) {
+          setShowForm(false)
+          setEditingCertification(null)
+          resetForm()
+        }
+        if (showDeleteModal) {
+          setShowDeleteModal(false)
+          setCertificationToDelete(null)
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleEscKey)
+    return () => document.removeEventListener('keydown', handleEscKey)
+  }, [showForm, showDeleteModal])
 
   const fetchCertifications = async () => {
     try {
@@ -184,7 +206,12 @@ export default function AdminCertifications() {
   }
 
   const handleDelete = async (certification) => {
-    if (!confirm('Are you sure you want to delete this certification?')) return
+    setCertificationToDelete(certification)
+    setShowDeleteModal(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!certificationToDelete) return
 
     try {
       const response = await fetch('/api/certifications', {
@@ -192,7 +219,7 @@ export default function AdminCertifications() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ id: certification._id })
+        body: JSON.stringify({ id: certificationToDelete._id })
       })
 
       if (response.ok) {
@@ -204,6 +231,9 @@ export default function AdminCertifications() {
     } catch (error) {
       console.error('Error deleting certification:', error)
       alert('Error deleting certification')
+    } finally {
+      setShowDeleteModal(false)
+      setCertificationToDelete(null)
     }
   }
 
@@ -680,6 +710,43 @@ export default function AdminCertifications() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && certificationToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Delete Certification
+              </h3>
+              <p className="text-sm text-gray-500 mb-6">
+                Are you sure you want to delete the certification <span className="font-semibold">"{certificationToDelete.title}"</span>? This action cannot be undone.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false)
+                    setCertificationToDelete(null)
+                  }}
+                  className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
