@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FolderOpen, ExternalLink, Github, Eye, Edit, Trash2, Plus, Search, Filter, Grid, List, Star, Calendar, Code, Zap } from 'lucide-react'
+import { isValidImageUrl, preloadImage, optimizeImageUrl } from '@/utils/imageOptimization'
 
 export default function AdminProjects() {
   const { data: session, status } = useSession()
@@ -37,6 +38,9 @@ export default function AdminProjects() {
   const [featuresInputError, setFeaturesInputError] = useState('')
   // Track which project's features are expanded
   const [expandedFeatures, setExpandedFeatures] = useState({})
+  // Track image loading states
+  const [imageLoadingStates, setImageLoadingStates] = useState({})
+  const [imagePreviewUrl, setImagePreviewUrl] = useState('')
 
   // Filter projects based on search and status
   const filteredProjects = projects.filter(project => {
@@ -73,13 +77,103 @@ export default function AdminProjects() {
     }))
   }
 
+  // Image handling functions
+  const validateImageUrl = (url) => {
+    return isValidImageUrl(url)
+  }
+
+  const handleImageChange = async (e) => {
+    const { value } = e.target
+    
+    // Update form data immediately
+    setFormData(prev => ({
+      ...prev,
+      image: value
+    }))
+
+    // Clear preview if empty
+    if (!value) {
+      setImagePreviewUrl('')
+      return
+    }
+
+    // Validate URL format
+    if (!validateImageUrl(value)) {
+      setImagePreviewUrl('')
+      return
+    }
+
+    // Try to preload the image with optimization
+    try {
+      const result = await preloadImage(value, { 
+        timeout: 8000,
+        width: 400, // Optimize for preview size
+        quality: 85 
+      })
+      if (result) {
+        setImagePreviewUrl(value)
+      }
+    } catch (error) {
+      console.warn('Image preload failed:', error)
+      setImagePreviewUrl('')
+    }
+  }
+
+  const handleImageLoad = (projectId) => {
+    setImageLoadingStates(prev => ({
+      ...prev,
+      [projectId]: false
+    }))
+  }
+
+  const handleImageLoadStart = (projectId) => {
+    setImageLoadingStates(prev => ({
+      ...prev,
+      [projectId]: true
+    }))
+  }
+
   const fetchProjects = async () => {
     try {
-      const response = await fetch('/api/projects')
+      setLoading(true)
+      
+      // Add cache-busting parameter for fresh data after updates
+      const timestamp = Date.now()
+      const response = await fetch(`/api/projects?_t=${timestamp}`, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
       const data = await response.json()
-      setProjects(data.projects || [])
+      
+      if (data.projects && Array.isArray(data.projects)) {
+        setProjects(data.projects)
+        
+        // Pre-initialize image loading states for all projects
+        const initialLoadingStates = {}
+        data.projects.forEach(project => {
+          if (project.image) {
+            initialLoadingStates[project.id] = false
+          }
+        })
+        setImageLoadingStates(initialLoadingStates)
+      } else {
+        console.warn('Invalid projects data received:', data)
+        setProjects([])
+      }
     } catch (error) {
       console.error('Error fetching projects:', error)
+      // Don't clear existing projects on error to maintain UI state
+      if (projects.length === 0) {
+        setProjects([])
+      }
     } finally {
       setLoading(false)
     }
@@ -87,6 +181,12 @@ export default function AdminProjects() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
+    
+    // Special handling for image input with preloading
+    if (name === 'image') {
+      handleImageChange(e)
+      return
+    }
     
     // Special handling for technologies input
     if (name === 'tech') {
@@ -150,6 +250,13 @@ export default function AdminProjects() {
     e.preventDefault()
     setLoading(true)
 
+    // Validate image URL if provided
+    if (formData.image && !validateImageUrl(formData.image)) {
+      alert('Please enter a valid image URL (jpg, jpeg, png, gif, webp, svg)')
+      setLoading(false)
+      return
+    }
+
     // No need to validate if technologies is empty - it's optional
     if (technologiesInput.trim() !== '' && formData.tech.length === 0) {
       // Only show error if they typed something but parsing failed
@@ -166,25 +273,44 @@ export default function AdminProjects() {
         ? { ...formData, _id: editingProject._id }
         : formData
 
+      // If updating and image changed, preload the new image
+      if (editingProject && formData.image && formData.image !== editingProject.image) {
+        try {
+          await preloadImage(formData.image, { 
+            timeout: 8000,
+            width: 400,
+            quality: 85 
+          })
+        } catch (imageError) {
+          console.warn('New image failed to preload, but continuing with update:', imageError)
+        }
+      }
+
       const response = await fetch('/api/projects', {
         method,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
         },
         body: JSON.stringify(payload)
       })
 
       if (response.ok) {
+        const result = await response.json()
+        console.log('Project saved successfully:', result)
+        
+        // Fetch fresh data from server
         await fetchProjects()
         resetForm()
         setShowForm(false)
       } else {
         const error = await response.json()
-        alert(`Error: ${error.error}`)
+        console.error('Server error:', error)
+        alert(`Error: ${error.error || 'Unknown error occurred'}`)
       }
     } catch (error) {
       console.error('Error saving project:', error)
-      alert('Error saving project')
+      alert('Error saving project. Please check your internet connection and try again.')
     } finally {
       setLoading(false)
     }
@@ -204,6 +330,9 @@ export default function AdminProjects() {
     // Ensure tech and features are arrays, even if not present in the project data
     const technologies = Array.isArray(project.tech) ? project.tech : []
     const features = Array.isArray(project.features) ? project.features : []
+    
+    // Set image preview if available
+    setImagePreviewUrl(project.image || '')
     
     // First set the form data with all project values
     setFormData({
@@ -275,6 +404,7 @@ export default function AdminProjects() {
     setFeaturesInput('') // Reset features input
     setTechInputError('') // Clear any error messages
     setFeaturesInputError('') // Clear any error messages
+    setImagePreviewUrl('') // Clear image preview
     setEditingProject(null)
   }
 
@@ -503,9 +633,33 @@ export default function AdminProjects() {
                       name="image"
                       value={formData.image}
                       onChange={handleInputChange}
-                      className="w-full border border-gray-300 rounded-xl px-4 py-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className={`w-full border rounded-xl px-4 py-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                        formData.image && !validateImageUrl(formData.image) 
+                          ? 'border-red-300 focus:ring-red-500' 
+                          : 'border-gray-300'
+                      }`}
                       placeholder="https://example.com/project-image.png"
                     />
+                    {formData.image && !validateImageUrl(formData.image) && (
+                      <p className="text-sm text-red-600">Please enter a valid image URL (jpg, jpeg, png, gif, webp, svg)</p>
+                    )}
+                    {imagePreviewUrl && (
+                      <div className="mt-3">
+                        <p className="text-sm text-gray-600 mb-2">Preview:</p>
+                        <div className="relative w-full h-32 bg-gray-100 rounded-lg overflow-hidden border">
+                          <img
+                            src={optimizeImageUrl(imagePreviewUrl, { width: 300, height: 150, quality: 90 })}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                            onLoad={() => console.log('Preview image loaded')}
+                            onError={() => {
+                              console.log('Preview image failed to load')
+                              setImagePreviewUrl('')
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-700">Project Status</label>
@@ -770,11 +924,31 @@ export default function AdminProjects() {
                         {/* Project Image */}
                         <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
                           {project.image ? (
-                            <img
-                              src={project.image}
-                              alt={project.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
+                            <>
+                              {/* Loading indicator */}
+                              {imageLoadingStates[project.id] && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                </div>
+                              )}
+                              <img
+                                src={optimizeImageUrl(project.image, { width: 400, height: 300, quality: 85 })}
+                                alt={project.title}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                loading="lazy"
+                                onLoadStart={() => handleImageLoadStart(project.id)}
+                                onLoad={() => handleImageLoad(project.id)}
+                                onError={(e) => {
+                                  console.warn(`Failed to load image for project ${project.id}:`, project.image)
+                                  e.target.style.display = 'none'
+                                  handleImageLoad(project.id)
+                                }}
+                                style={{
+                                  imageRendering: 'auto',
+                                  imageRendering: '-webkit-optimize-contrast',
+                                }}
+                              />
+                            </>
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <Code className="w-16 h-16 text-gray-400" />
@@ -901,11 +1075,31 @@ export default function AdminProjects() {
                         {/* Project Image - List View */}
                         <div className="relative w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl overflow-hidden flex-shrink-0">
                           {project.image ? (
-                            <img
-                              src={project.image}
-                              alt={project.title}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
+                            <>
+                              {/* Loading indicator - List View */}
+                              {imageLoadingStates[project.id] && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-xl">
+                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                                </div>
+                              )}
+                              <img
+                                src={optimizeImageUrl(project.image, { width: 150, height: 150, quality: 85 })}
+                                alt={project.title}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                loading="lazy"
+                                onLoadStart={() => handleImageLoadStart(project.id)}
+                                onLoad={() => handleImageLoad(project.id)}
+                                onError={(e) => {
+                                  console.warn(`Failed to load image for project ${project.id}:`, project.image)
+                                  e.target.style.display = 'none'
+                                  handleImageLoad(project.id)
+                                }}
+                                style={{
+                                  imageRendering: 'auto',
+                                  imageRendering: '-webkit-optimize-contrast',
+                                }}
+                              />
+                            </>
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
                               <Code className="w-8 h-8 text-gray-400" />

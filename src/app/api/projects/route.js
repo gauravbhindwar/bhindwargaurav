@@ -8,10 +8,24 @@ export async function GET() {
   try {
     await connectToDatabase();
     
-    // Fetch all projects and sort by order field (ascending), then by id as secondary sort
-    const projects = await Project.find({})
+    // Fetch all projects with optimized query - only select needed fields
+    const projects = await Project.find({}, {
+      id: 1,
+      title: 1,
+      description: 1,
+      image: 1,
+      tech: 1,
+      github: 1,
+      live: 1,
+      preview: 1,
+      features: 1,
+      order: 1,
+      status: 1,
+      createdAt: 1
+    })
       .sort({ order: 1, id: 1, createdAt: -1 }) // Sort by order, then id, then creation date
-      .lean();
+      .lean() // Use lean() for better performance
+      .maxTimeMS(5000); // Set query timeout to 5 seconds
     
     if (!projects || projects.length === 0) {
       // Fallback to static data if no MongoDB data exists
@@ -32,15 +46,16 @@ export async function GET() {
         return a.id.localeCompare(b.id);
       });
       
-      // Set cache headers
+      // Set cache headers for static data
       const response = NextResponse.json({ projects: sortedProjects });
-      response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+      response.headers.set('Cache-Control', 'public, max-age=600, s-maxage=1200'); // Cache static data longer
       return response;
     }
     
-    // Return data with cache headers
+    // Return data with optimized cache headers
     const response = NextResponse.json({ projects });
-    response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+    response.headers.set('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=60');
+    response.headers.set('ETag', `"${Date.now()}"`);
     return response;
   } catch (error) {
     console.error('Error fetching projects:', error);
@@ -59,7 +74,10 @@ export async function GET() {
         
         return a.id.localeCompare(b.id);
       });
-      return NextResponse.json({ projects: sortedProjects });
+      
+      const response = NextResponse.json({ projects: sortedProjects });
+      response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+      return response;
     } catch (fallbackError) {
       return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
     }
@@ -152,10 +170,19 @@ export async function PUT(request) {
 
     await connectToDatabase();
 
+    // Use findOneAndUpdate with lean option for better performance
     const project = await Project.findOneAndUpdate(
       { id },
-      { ...updateData, updatedAt: new Date() },
-      { new: true }
+      { 
+        ...updateData, 
+        updatedAt: new Date() 
+      },
+      { 
+        new: true,
+        lean: true, // Return plain object instead of mongoose document
+        runValidators: true, // Ensure schema validation
+        maxTimeMS: 5000 // Set timeout for update operation
+      }
     );
 
     if (!project) {
@@ -165,13 +192,36 @@ export async function PUT(request) {
       );
     }
 
-    return NextResponse.json({ 
+    // Return success response with cache invalidation headers
+    const response = NextResponse.json({ 
       message: 'Project updated successfully', 
       project 
     });
+    
+    // Add headers to invalidate any cached data
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set('ETag', `"${Date.now()}"`);
+    
+    return response;
 
   } catch (error) {
     console.error('Error updating project:', error);
+    
+    // Provide more specific error messages
+    if (error.name === 'ValidationError') {
+      return NextResponse.json(
+        { error: 'Invalid project data: ' + error.message },
+        { status: 400 }
+      );
+    }
+    
+    if (error.name === 'MongoTimeoutError') {
+      return NextResponse.json(
+        { error: 'Database operation timed out. Please try again.' },
+        { status: 503 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to update project' },
       { status: 500 }
