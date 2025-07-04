@@ -26,8 +26,8 @@ A modern, responsive portfolio website built with Next.js 13, Framer Motion, and
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/bhindwargaurav.git
-cd bhindwargaurav
+git clone https://github.com/yourusername/gauravkumar.git
+cd gauravkumar
 ```
 
 2. Install dependencies:
@@ -70,11 +70,10 @@ This project is open source and available under the [MIT License](LICENSE).
 ## 🔗 Links
 
 - [Live Demo](https://your-portfolio-url.com)
-- [GitHub Repository](https://github.com/yourusername/bhindwargaurav)
+- [GitHub Repository](https://github.com/yourusername/gauravkumar)
 
 ## 👋 Contact
 
 - Website - [gauravbhindwar]([https://gauravbhindwar.vercel.app/])
 - GitHub - [@bhindwargaurav]([https://github.com/gauravbhindwar])
 - LinkedIn - [Gaurav Kumar](https://www.linkedin.com/in/gaurav-kumar-11615220a/)
-# bhindwargaurav

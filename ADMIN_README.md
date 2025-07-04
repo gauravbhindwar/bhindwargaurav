@@ -32,7 +32,7 @@ A modern portfolio website built with Next.js, featuring an admin dashboard for 
 
 ```bash
 git clone <repository-url>
-cd bhindwargaurav
+cd gauravkumar
 npm install
 ```
 
